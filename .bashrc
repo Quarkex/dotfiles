@@ -19,6 +19,7 @@ bind Space:magic-space
 
 #set bash history preferences
 export HISTCONTROL=ignorespace
+export HISTIGNORE='cd *:ls:l:ll:exit:su *:clear_history:exec bash'
 
 #let's be polite. Allow others to talk to us
 mesg y
