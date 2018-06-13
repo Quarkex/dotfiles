@@ -17,6 +17,9 @@ PROMPT_DIRTRIM=2
 #enable history autocompletion wizardy
 bind Space:magic-space
 
+#set bash history preferences
+export HISTCONTROL=ignorespace
+
 #let's be polite. Allow others to talk to us
 mesg y
 
@@ -60,7 +63,7 @@ function say {
         echo 0.6 0.6 60 0.7 \
         gain 8;
 }
-alias cp="rsync -az"
+alias clear_history="cat /dev/null > ~/.bash_history"
 alias :q='exit'
 alias hasstring='find . -type f -print0 | xargs -0 grep $1'
 alias cls='clear && echo "Current directory: $(pwd)" && ls'
