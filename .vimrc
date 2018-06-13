@@ -106,4 +106,5 @@ vnoremap <A-k> :m '<-2<CR>gv=gv
 
 let mapleader="º"
 
-execute pathogen#infect()
+"Old plugin manager command
+"execute pathogen#infect()
