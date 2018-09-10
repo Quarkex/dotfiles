@@ -59,7 +59,7 @@ elif [[ "$1" == "destroy" ]]; then
 elif [[ "$1" == "enter" ]]; then
     docker exec -u root -it odoo-dev sh -c "cd /usr/lib/python3/idist-packages/odoo && bash"
 elif [[ "$1" == "logs" ]]; then
-    watch -c docker logs odoo-dev
+    watch -c 'docker logs odoo-dev | tail'
 else
     echo "Unknown argument: $1"
     exit 1;
