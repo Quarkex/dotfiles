@@ -1,0 +1,55 @@
+#!/bin/bash
+# Enough is enough. Use "case" here!
+if [[ "$1" == "" ]]; then
+    echo "Usage:"
+    echo ""
+    echo "${0##*/} start: Start the liferay server and database."
+    echo ""
+    echo "${0##*/} stop:  Stop the liferay server and database."
+    echo ""
+    echo "${0##*/} enter: Start an interactive shell in the liferay server."
+    echo ""
+    echo "${0##*/} import <file> [target]: Copy file inside the server container."
+    echo ""
+    echo "${0##*/} export <file> [target]: Copy file from the server container."
+    echo ""
+    echo "${0##*/} build <target>: Build target plugin and deploys to server."
+    echo ""
+    echo "${0##*/} download <plugin> [target]: Build target plugin and downloads to host."
+    echo ""
+    echo "${0##*/} regenerate: CAREFUL. Erases current docker images and start again"
+    exit 0;
+elif [[ "$1" == "start" ]]; then
+    docker start lep-db && docker start lep-as
+elif [[ "$1" == "stop" ]]; then
+    docker stop lep-as && docker stop lep-db
+elif [[ "$1" == "import" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker cp "$2" lep-as:"${3-/root/.}"
+    fi
+elif [[ "$1" == "export" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker cp lep-as:"$2" "${3-.}"
+    fi
+elif [[ "$1" == "build" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker exec -it lep-as sh -c 'cd /opt/liferay-plugins-sdk-6.2/"'"$2"'" && ant clean deploy'
+    fi
+elif [[ "$1" == "regenerate" ]]; then
+    docker stop lep-as
+    docker stop lep-db
+    docker rm lep-db
+    docker rm lep-as
+    docker run --name lep-db -e MYSQL_ROOT_PASSWORD=admin -e MYSQL_USER=lportal -e MYSQL_PASSWORD=lportal -e MYSQL_DATABASE=lportal -d mysql:5.7
+    docker run --name lep-as -p 80:8080 -p 443:8443 --link lep-db -d ctliv/liferay:6.2
+elif [[ "$1" == "download" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker exec -it lep-as sh -c 'cd /opt/liferay-plugins-sdk-6.2/"'"$2"'" && ant clean deploy'
+        docker cp lep-as:"/opt/liferay-plugins-sdk-6.2/dist/${2##*/}-6.2.0.1.war" "${3-.}"
+    fi
+elif [[ "$1" == "enter" ]]; then
+    docker exec -it lep-as bash
+else
+    echo "Unknown argument: $1"
+    exit 1;
+fi

@@ -1,3 +1,54 @@
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+"call vundle#begin('~/some/path/here')
+
+" let Vundle manage Vundle, required
+Plugin 'gmarik/Vundle.vim'
+
+" The following are examples of different formats supported.
+" Keep Plugin commands between vundle#begin/end.
+" plugin on GitHub repo
+"Plugin 'tpope/vim-fugitive'
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'kovisoft/slimv'
+Plugin 'chrisbra/csv.vim'
+Plugin 'elixir-editors/vim-elixir'
+" plugin from http://vim-scripts.org/vim/scripts.html
+"Plugin 'L9'
+" Git plugin not hosted on GitHub
+"Plugin 'git://git.wincent.com/command-t.git'
+" git repos on your local machine (i.e. when working on your own plugin)
+"Plugin 'file:///home/gmarik/path/to/plugin'
+" The sparkup vim script is in a subdirectory of this repo called vim.
+" Pass the path to set the runtimepath properly.
+"Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+" Avoid a name conflict with L9
+"Plugin 'user/L9', {'name': 'newL9'}
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+" To ignore plugin indent changes, instead use:
+"filetype plugin on
+"
+" Brief help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just
+":PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins; append `!` to
+"auto-approve removal
+"
+" see :h vundle for more details or wiki for FAQ
+"   ///////////////////////////////////////////////
+"  // Put your non-Plugin stuff after this line //
+" ///////////////////////////////////////////////
+
 " You can add a global configuration file in /etc/vim/vimrc.local
 set nocompatible                  " must be first line
 set encoding=utf-8                " The encoding displayed.
@@ -28,15 +79,16 @@ set softtabstop=4                 " let backspace delete indent
 
 
 set backup                        " backups are nice ...
-set backupdir=$HOME/.vim/backup// " but not when they clog .
-set directory=$HOME/.vim/swap//   " Same for swap files
-set viewdir=$HOME/.vim/views//    " same for view files
+set backupdir=$HOME/.vim_backup/ " but not when they clog .
+set directory=$HOME/.vim_swap/   " Same for swap files
+set viewdir=$HOME/.vim_views/    " same for view files
 
 "" Creating directories if they don't exist
-silent execute '!mkdir -p $HOME/.vim/backup'
-silent execute '!mkdir -p $HOME/.vim/swap'
-silent execute '!mkdir -p $HOME/.vim/views'
+silent execute '!mkdir -p $HOME/.vim_backup'
+silent execute '!mkdir -p $HOME/.vim_swap'
+silent execute '!mkdir -p $HOME/.vim_views'
 
+com! FormatJSON %!python -m json.tool
 
 
 
@@ -46,13 +98,16 @@ autocmd BufNewFile,BufRead *.tex setl omnifunc=syntaxcomplete#Complete
 autocmd BufNewFile,BufRead *.tex setl spell
 autocmd BufNewFile,BufRead *.tex setl spelllang=es_es
 autocmd BufNewFile,BufRead *.tex setl filetype=plaintex
+autocmd BufNewFile,BufRead *.tex :map <F9> :w\|!pdflatex "%:p" %% && firefox "%:p:r".pdf<CR>
 
 filetype plugin on
-autocmd FileType php setl ofu=phpcomplete#CompletePHP
-autocmd FileType ruby,eruby setl ofu=rubycomplete#Complete
-autocmd FileType html,xhtml setl ofu=htmlcomplete#CompleteTags
-autocmd FileType c setl ofu=ccomplete#CompleteCpp
-autocmd FileType css setl ofu=csscomplete#CompleteCSS
+""" No longer necesary with YouCompleteMe plugin.
+"autocmd FileType lisp setl ofu=lispcomplete#CompleteLisp
+"autocmd FileType php setl ofu=phpcomplete#CompletePHP
+"autocmd FileType ruby,eruby setl ofu=rubycomplete#Complete
+"autocmd FileType html,xhtml setl ofu=htmlcomplete#CompleteTags
+"autocmd FileType c setl ofu=ccomplete#CompleteCpp
+"autocmd FileType css setl ofu=csscomplete#CompleteCSS
 
 set foldmarker={,} foldlevel=0 foldmethod=marker
 " set foldmethod=syntax
@@ -106,5 +161,66 @@ vnoremap <A-k> :m '<-2<CR>gv=gv
 
 let mapleader="º"
 
-"Old plugin manager command
 "execute pathogen#infect()
+
+let g:slimv_swank_cmd = "! /usr/bin/tmux new-window -n 'swank' 'sbcl --load ~/.vim/bundle/slimv/slime/start-swank.lisp'"
+let g:lisp_rainbow=1
+let g:slimv_impl="sbcl"
+
+"" :call SetDrawIt('vertical','horizontal','crossing','\','/','X','*')
+
+
+function! Liquid()
+    "" Define certain regions
+    syn match liquid_keyword ' and '
+    syn match liquid_keyword ' or '
+    syn match liquid_keyword ' else '
+    syn match liquid_keyword ' elsif '
+    syn match liquid_keyword ' in '
+    syn match liquid_keyword ' for '
+    syn match liquid_keyword ' endfor '
+    syn match liquid_keyword ' if '
+    syn match liquid_keyword ' endif '
+    syn match liquid_keyword ' unless '
+    syn match liquid_keyword ' endunless '
+    syn match liquid_keyword ' capture '
+    syn match liquid_keyword ' endcapture '
+    syn match liquid_keyword ' assign '
+    syn match liquid_keyword ' increment '
+    syn match liquid_keyword ' decrement '
+    syn match liquid_keyword ' comment '
+    syn match liquid_keyword ' endcomment '
+    syn match liquid_keyword ' include '
+    syn match liquid_keyword ' link '
+    syn match liquid_keyword ' post_url '
+    syn match liquid_keyword ' gist '
+    syn match liquid_keyword ' highlight '
+    syn match liquid_keyword ' endhighlight '
+    syn match liquid_keyword ' lineos '
+
+    syn match liquid_keyword '\.'
+
+    syn match liquid_pipe '|'
+
+    syn region liquid_constant start='"' end='"' contained
+    syn region liquid_constant start="'" end="'" contained
+
+    syn match liquid_filter '[a-z 0-9 _ \-]\+:'
+
+    " Liquid multiline. Look for "{%[anything]%}[anything]{%[anything]%}"
+    syn region highlight_block start='{%' end='%}' fold transparent contains=liquid,liquid_pipe,liquid_keyword,liquid_class,liquid_filter,liquid_constant
+    syn region highlight_block start='{{' end='}}' fold transparent contains=liquid,liquid_pipe,liquid_keyword,liquid_class,liquid_filter,liquid_constant
+
+    "" Actually highlight those regions.
+    hi link liquid Identifier
+    hi link liquid_pipe Identifier
+    hi link liquid_keyword Statement
+    hi link liquid_filter Type
+    hi link liquid_constant Constant
+    hi link highlight_block Function
+endfunction
+
+" Call everytime we open a Markdown file
+autocmd BufRead,BufNewFile,BufEnter *.html,*.md,*.markdown call Liquid()
+
+map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>

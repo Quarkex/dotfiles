@@ -1,0 +1,75 @@
+#!/bin/bash
+# Enough is enough. Use "case" here!
+if [[ "$1" == "" ]]; then
+    echo "Usage:"
+    echo ""
+    echo "${0##*/} start: Start the Jekyll server."
+    echo ""
+    echo "${0##*/} stop:  Stop the Jekyll server."
+    echo ""
+    echo "${0##*/} enter: Start an interactive shell in the Jekyll server."
+    echo ""
+    echo "${0##*/} build: Build page."
+    echo ""
+    echo "${0##*/} import <file> [target]: Copy file inside the server container."
+    echo ""
+    echo "${0##*/} export <file> [target]: Copy file from the server container."
+    echo ""
+    echo "${0##*/} regenerate: CAREFUL. Erases current docker images and start again"
+    exit 0;
+elif [[ "$1" == "start" ]]; then
+    docker start d4t
+elif [[ "$1" == "restart" ]]; then
+    docker stop d4t && docker start d4t
+elif [[ "$1" == "stop" ]]; then
+    docker stop d4t
+elif [[ "$1" == "import" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker cp "$2" d4t:"${3-/root/.}"
+    fi
+elif [[ "$1" == "export" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker cp d4t:"$2" "${3-.}"
+    fi
+elif [[ "$1" == "build" ]]; then
+    docker exec -it d4t bash -c 'cd /var/www/d4t/ && ./build.sh'
+elif [[ "$1" == "regenerate" ]]; then
+    docker stop d4t &&
+    docker rm d4t &&
+    docker run --name d4t --label=d4t --volume=${HOME}/workbench/d4t_sinatra:/var/www/d4t -it -p 127.0.0.1:8080:80 -p 127.0.0.1:4567:4567 -d sdavies/ruby-postgresql &&
+    # disable restrictive permissions
+    docker exec -it d4t bash -c "sed -i -e '90,94s/md5/trust/' -e '85s/^\(.*\)peer$/#\1peer\n\1trust/' /etc/postgresql/9.4/main/pg_hba.conf" &&
+    docker exec -it d4t bash -c 'service postgresql restart' &&
+    echo "Setting new password user 'postgres' in db..." &&
+    docker exec -it d4t bash -c "sudo -u postgres psql postgres -c '\\password postgres'" &&
+    docker exec -it d4t bash -c "sudo -u postgres createuser d4t" &&
+    docker exec -it d4t bash -c "sudo -u postgres psql postgres -c \"ALTER USER d4t WITH password 'testpassword';\"" &&
+    docker exec -it d4t bash -c "sudo -u postgres psql postgres -c \"ALTER USER d4t CREATEDB;\"" &&
+    # damn it postgresql...
+    docker exec -it d4t bash -c "sudo -u postgres psql postgres -c \"UPDATE pg_database SET datistemplate = FALSE WHERE datname = 'template1';\"" &&
+    docker exec -it d4t bash -c "sudo -u postgres psql postgres -c \"DROP DATABASE template1;\"" &&
+    docker exec -it d4t bash -c "sudo -u postgres psql postgres -c \"CREATE DATABASE template1 WITH TEMPLATE = template0 ENCODING = 'UNICODE';\"" &&
+    docker exec -it d4t bash -c "sudo -u postgres psql postgres -c \"UPDATE pg_database SET datistemplate = TRUE WHERE datname = 'template1';\"" &&
+    docker exec -it d4t bash -c "sudo -u postgres psql postgres -c \"\\c template1\"" &&
+    docker exec -it d4t bash -c "sudo -u postgres psql postgres -c \"VACUUM FREEZE;\"" &&
+    # no need to create the db manually, rake will do it for us
+    #docker exec -it d4t bash -c "sudo -u postgres createdb d4t --owner d4t" &&
+    # install required ruby gems
+    docker exec -it d4t bash -c 'gem install pg' &&
+    docker exec -it d4t bash -c 'gem install activerecord' &&
+    docker exec -it d4t bash -c 'gem install sinatra' &&
+    docker exec -it d4t bash -c 'gem install sinatra-activerecord' &&
+    docker exec -it d4t bash -c 'gem install rake'
+    #docker exec -it d4t bash -c 'apt-get update && apt-get install -y apache2' &&
+    #docker exec -it d4t bash -c "sed -i -e '12s/html/d4t/' -e '13s;^.*$;\n<Directory /var/www/d4t/>\nOptions Indexes FollowSymlinks MultiViews ExecCGI\nAddHandler cgi-script .cgi .rb .json\nDirectoryIndex index.rb index.html\nAllowOverride All\nOrder allow,deny\nallow from all\nSetEnv GEM_PATH /root/.gem/ruby/2.4.0:/usr/local/lib/ruby/gems/2.4.0:/usr/local/bundle\n</Directory>\n;' /etc/apache2/sites-available/000-default.conf" &&
+    #docker exec -it d4t bash -c 'a2enmod cgi' &&
+    #docker exec -it d4t bash -c 'service apache2 restart'
+elif [[ "$1" == "destroy" ]]; then
+    docker stop d4t
+    docker rm d4t
+elif [[ "$1" == "enter" ]]; then
+    docker exec -it d4t bash
+else
+    echo "Unknown argument: $1"
+    exit 1;
+fi

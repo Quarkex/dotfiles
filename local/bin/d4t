@@ -1,0 +1,69 @@
+#!/bin/bash
+# Enough is enough. Use "case" here!
+if [[ "$1" == "" || "$1" == "help" || "$1" == "-h" ]]; then
+    echo "Usage:"
+    echo ""
+    echo "${0##*/} start:···························Start the image and server."
+    echo "${0##*/} stop:                            Stop the image and server."
+    echo "${0##*/} restart:·························Perform a stop and a start."
+    echo "${0##*/} run:                             Start the server."
+    echo "${0##*/} kill:····························Kills the server."
+    echo "${0##*/} reload:                          Kills and runs the server again."
+    echo "${0##*/} enter:···························Start an interactive shell in the server."
+    echo "${0##*/} build:                           Build page."
+    echo "${0##*/} import <file> [target]:··········Copy file inside the server container."
+    echo "${0##*/} export <file> [target]:          Copy file from the server container."
+    echo "${0##*/} regenerate:······················CAREFUL. Erases current docker images and start again"
+    echo "${0##*/} destroy:                         CAREFUL. Erases current docker image"
+    echo "${0##*/} [ rails | rake | git | bundle ]:·Bridge to docker insides, will act in main folder"
+    echo "${0##*/} fix_permissions                  changes all permissions for files in main folder"
+    exit 0;
+elif [[ "$1" == "start" ]]; then
+    docker start d4t &&
+    docker exec -dit d4t bash -c 'cd /var/www/d4t/ && rails server -b 0.0.0.0'
+elif [[ "$1" == "restart" ]]; then
+    docker exec -dit d4t bash -c 'kill "$(ps ax | grep "[b]ash -c cd /var/www/d4t/ && rails server -b 0.0.0.0" | cut -d\  -f1 )"'
+    docker stop d4t && docker start d4t &&
+    docker exec -dit d4t bash -c 'cd /var/www/d4t/ && rails server -b 0.0.0.0'
+elif [[ "$1" == "stop" ]]; then
+    docker exec -dit d4t bash -c 'kill "$(ps ax | grep "[b]ash -c cd /var/www/d4t/ && rails server -b 0.0.0.0" | cut -d\  -f1 )"'
+    docker stop d4t
+elif [[ "$1" == "import" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker cp "$2" d4t:"${3-/root/.}"
+    fi
+elif [[ "$1" == "export" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker cp d4t:"$2" "${3-.}"
+    fi
+elif [[ "$1" == "build" ]]; then
+    docker exec -it d4t bash -c 'cd /var/www/d4t/ && ./build.sh'
+elif [[ "$1" == "run" ]]; then
+    docker exec -dit d4t bash -c 'cd /var/www/d4t/ && rails server -b 0.0.0.0'
+elif [[ "$1" == "kill" ]]; then
+    docker exec -dit d4t bash -c 'kill "$(ps ax | grep "[b]ash -c cd /var/www/d4t/ && rails server -b 0.0.0.0" | cut -d\  -f1 )"'
+elif [[ "$1" == "reload" ]]; then
+    docker exec -dit d4t bash -c 'kill "$(ps ax | grep "[b]ash -c cd /var/www/d4t/ && rails server -b 0.0.0.0" | cut -d\  -f1 )"'
+    docker exec -dit d4t bash -c 'cd /var/www/d4t/ && rails server -b 0.0.0.0'
+elif [[ "$1" == "regenerate" ]]; then
+    docker exec -dit d4t bash -c 'kill "$(ps ax | grep "[b]ash -c cd /var/www/d4t/ && rails server -b 0.0.0.0" | cut -d\  -f1 )"'
+    docker stop d4t &&
+    docker rm d4t;
+    docker run --name d4t --label=d4t --volume=${HOME}/workbench/d4t:/var/www/d4t -it -p 127.0.0.1:3000:3000 -d ruby &&
+    docker exec -it d4t bash -c 'gem install rails' &&
+    docker exec -it d4t bash -c 'apt-get update && apt-get install nodejs -y' &&
+    docker exec -it d4t bash -c 'cd /var/www/d4t && bundle install'
+elif [[ "$1" == "destroy" ]]; then
+    docker exec -dit d4t bash -c 'kill "$(ps ax | grep "[b]ash -c cd /var/www/d4t/ && rails server -b 0.0.0.0" | cut -d\  -f1 )"'
+    docker stop d4t
+    docker rm d4t
+elif [[ "$1" == "enter" ]]; then
+    docker exec -it d4t sh -c "cd /var/www/d4t && bash"
+elif [[ "$1" == "rails" || "$1" == "git" || "$1" == "rake" || "$1" == "bundle" ]]; then
+    docker exec -it d4t bash -c "cd /var/www/d4t && $*"
+elif [[ "$1" == "fix_permissions" ]]; then
+    docker exec -it d4t sh -c "cd /var/www/d4t && chown -R $(id -u):$(id -g) ."
+else
+    echo "Unknown argument: $1"
+    exit 1;
+fi
