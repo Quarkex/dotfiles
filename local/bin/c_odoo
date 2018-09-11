@@ -23,7 +23,6 @@ if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
     echo "${0##*/} {instance} logs:····························Output docker containter logs to stdin"
     exit 0;
 else
-    # Enough is enough. Use "case" here!
     if [[ "${action}" == "start" ]]; then
         docker start odoo-$instance-db &&
         docker start odoo-$instance
