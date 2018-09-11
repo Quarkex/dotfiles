@@ -16,7 +16,7 @@ if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
     echo "${0##*/} {instance} export <file> [target]:          Copy file from the server container."
     echo "${0##*/} {instance} dump <file> [target]:············Export odoo database dump file."
     echo "${0##*/} {instance} undump <file> [target]:          Import odoo database dump file."
-    echo "${0##*/} {instance} regenerate:······················CAREFUL. Erases current docker images and start again"
+    echo "${0##*/} {instance} regenerate [port]:···············CAREFUL. Erases current docker images and start again"
     echo "${0##*/} {instance} destroy:                         CAREFUL. Erases current docker image"
     echo "${0##*/} {instance} logs:····························Output docker containter logs to stdin"
     exit 0;
