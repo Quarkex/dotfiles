@@ -16,11 +16,14 @@ if [[ "$1" == "" || "$1" == "help" || "$1" == "-h" ]]; then
     echo "${0##*/} logs:····························Output docker containter logs to stdin"
     exit 0;
 elif [[ "$1" == "start" ]]; then
-    docker start odoo-pro
+    docker start odoo-pro-db &&
+    docker start odoo-pro;
 elif [[ "$1" == "restart" ]]; then
-    docker stop odoo-pro && docker start odoo-pro
+    docker stop odoo-pro-db && docker stop odoo-pro;
+    docker start odoo-pro-db && docker start odoo-pro;
 elif [[ "$1" == "stop" ]]; then
-    docker stop odoo-pro
+    docker stop odoo-pro &&
+    docker stop odoo-pro-db;
 elif [[ "$1" == "import" ]]; then
     if [[ ! "$2" == "" ]]; then
         docker cp "$2" odoo-pro:"${3-/root/.}"

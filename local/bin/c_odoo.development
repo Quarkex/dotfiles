@@ -19,7 +19,8 @@ elif [[ "$1" == "start" ]]; then
     docker start odoo-dev-db &&
     docker start odoo-dev
 elif [[ "$1" == "restart" ]]; then
-    docker stop odoo-dev-db && docker stop odoo-dev && docker start odoo-dev-db && docker start odoo-dev
+    docker stop odoo-dev-db && docker stop odoo-dev;
+    docker start odoo-dev-db && docker start odoo-dev;
 elif [[ "$1" == "stop" ]]; then
     docker stop odoo-dev &&
     docker stop odoo-dev-db
