@@ -21,6 +21,7 @@ if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
     echo "${0##*/} {instance} regenerate [port]:···············CAREFUL. Erases current docker images and start again"
     echo "${0##*/} {instance} destroy:                         CAREFUL. Erases current docker image"
     echo "${0##*/} {instance} logs:····························Output docker containter logs to stdin"
+    echo "${0##*/} {instance} odoo:                            Bridge to odoo binary, will act in main folder"
     exit 0;
 else
     if [[ "${action}" == "start" ]]; then
@@ -111,6 +112,9 @@ else
         fi
     elif [[ "${action}" == "logs" ]]; then
         watch -c 'docker logs odoo-'$instance' | tail'
+    elif [[ "${action}" == "odoo" ]]; then
+        argument="$( echo "$*" | sed -E -e 's/^'"$instance"' //' )"
+        docker exec -u root -it odoo-$instance bash -c "cd /mnt/extra-addons && /usr/bin/$argument"
     else
         echo "Unknown argument: ${action}"
         exit 1;
