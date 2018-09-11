@@ -15,7 +15,7 @@ if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
     echo "${0##*/} {instance} import <file> [target]:··········Copy file inside the server container."
     echo "${0##*/} {instance} export <file> [target]:          Copy file from the server container."
     echo "${0##*/} {instance} dump <db name> [folder]:·········Export odoo database dump file."
-    echo "${0##*/} {instance} undump <file>:                   Import odoo database dump file."
+    echo "${0##*/} {instance} undump <file> [db name]:         Import odoo database dump file."
     echo "${0##*/} {instance} regenerate [port]:···············CAREFUL. Erases current docker images and start again"
     echo "${0##*/} {instance} destroy:                         CAREFUL. Erases current docker image"
     echo "${0##*/} {instance} logs:····························Output docker containter logs to stdin"
@@ -42,7 +42,11 @@ else
     elif [[ "${action}" == "undump" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
             filename="${argumentA}"
-            database="$(echo "${argumentA}" | sed -E -e 's/_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}.dump$//')"
+            if [[ $argumentB == "" ]]; then
+                database="$(echo "${argumentA}" | sed -E -e 's/_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}.dump$//')"
+            else
+                database="$argumentB"
+            fi
             docker cp "$filename" odoo-$instance-db:"/home/postgres/${filename}"
             docker exec -u postgres -it odoo-$instance-db bash -c 'psql '"${database}"' < /home/postgres/'"${filename}" &&
             docker exec -u postgres -it odoo-$instance-db bash -c 'rm /home/postgres/'"$filename"
