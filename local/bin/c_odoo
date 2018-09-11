@@ -41,15 +41,19 @@ else
         fi
     elif [[ "${action}" == "undump" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
-            if [[ ! "$argumentB" == "" ]]; then
-                docker cp "$argumentB" odoo-$instance-db:"/home/postgres/${argumentB}"
-                docker exec -u postgres -dit odoo-$instance-db bash -c 'pg_dump '"${argumentB%%\.dump}"' < /home/postgres/'"${argumentB}"
-            fi
+            filename="${argumentA}"
+            database="$(echo "${argumentA}" | sed -E -e 's/_D[0-9]{4}-[0-9]{2}-[0-9]{2}_T[0-9]{2}-[0-9]{2}-[0-9]{2}.dump$//')"
+            docker cp "$filename" odoo-$instance-db:"/home/postgres/${filename}"
+            docker exec -u postgres -it odoo-$instance-db bash -c 'psql '"${database}"' < /home/postgres/'"${filename}" &&
+            docker exec -u postgres -it odoo-$instance-db bash -c 'rm /home/postgres/'"$filename"
         fi
     elif [[ "${action}" == "dump" ]]; then
+        timestamp="$(date +D%Y-%m-%d_T%H-%M-%S)"
+        filename="${argumentA}"'_'"${timestamp}"'.dump'
         if [[ ! "$argumentA" == "" ]]; then
-            docker exec -u postgres -dit odoo-$instance-db bash -c 'pg_dump '"${2}"' > /home/postgres/'"${2}"'.dump'
-            docker cp odoo-$instance-db:"/home/postgres/${2}.dump" "${2}.dump"
+            docker exec -u postgres -it odoo-$instance-db bash -c 'pg_dump '"${argumentA}"' > /home/postgres/'"$filename" &&
+            docker cp odoo-$instance-db:"/home/postgres/$filename" "$filename" &&
+            docker exec -u postgres -it odoo-$instance-db bash -c 'rm /home/postgres/'"$filename"
         fi
     elif [[ "${action}" == "regenerate" ]]; then
         docker stop odoo-$instance;
