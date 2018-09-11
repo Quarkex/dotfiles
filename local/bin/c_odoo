@@ -16,6 +16,8 @@ if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
     echo "${0##*/} {instance} export <file> [target]:          Copy file from the server container."
     echo "${0##*/} {instance} dump <db name> [folder]:·········Export odoo database dump file."
     echo "${0##*/} {instance} undump <file> [db name]:         Import odoo database dump file."
+    echo "${0##*/} {instance} save_files [folder]:·············Export all files inside odoo instance to a backup."
+    echo "${0##*/} {instance} load_files <file>:               Import a backup of all files inside an odoo instance and fix permissions."
     echo "${0##*/} {instance} regenerate [port]:···············CAREFUL. Erases current docker images and start again"
     echo "${0##*/} {instance} destroy:                         CAREFUL. Erases current docker image"
     echo "${0##*/} {instance} logs:····························Output docker containter logs to stdin"
@@ -63,6 +65,23 @@ else
             docker exec -u postgres -it odoo-$instance-db bash -c 'pg_dump '"${argumentA}"' > /home/postgres/'"$filename" &&
             docker cp odoo-$instance-db:"/home/postgres/$filename" "$output_name" &&
             docker exec -u postgres -it odoo-$instance-db bash -c 'rm /home/postgres/'"$filename"
+        fi
+    elif [[ "${action}" == "save_files" ]]; then
+        timestamp="$(date +%Y-%m-%d_%H-%M-%S)"
+        filename="${instance}"'_'"${timestamp}"'.tar.gz'
+        if [[ $argumentA == "" ]]; then
+            output_name="./$filename"
+        else
+            output_name="$argumentA/$filename"
+        fi
+        docker exec -u root -it odoo-$instance bash -c 'tar -zcpvf /root/'"$filename"' /var/lib/odoo/*' &&
+        docker cp odoo-$instance:"/root/$filename" "$output_name" &&
+        docker exec -u root -it odoo-$instance bash -c 'rm /root/'"$filename"
+    elif [[ "${action}" == "load_files" ]]; then
+        if [[ ! "$argumentA" == "" ]]; then
+            filename="$argumentA"
+            docker cp "$filename" odoo-$instance:"/var/lib/odoo/${filename}"
+            docker exec -u root -it odoo-$instance bash -c 'cd /var/lib/odoo/ && tar -zxpvf '"$filename"' && chown -R odoo:odoo * && rm '"$filename"
         fi
     elif [[ "${action}" == "regenerate" ]]; then
         docker stop odoo-$instance;
