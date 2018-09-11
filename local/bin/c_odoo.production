@@ -57,7 +57,7 @@ elif [[ "$1" == "destroy" ]]; then
     docker rm odoo-pro-db &&
     docker rm odoo-pro;
 elif [[ "$1" == "enter" ]]; then
-    docker exec -u root -it odoo-pro sh -c "cd /usr/lib/python3/idist-packages/odoo && bash"
+    docker exec -u root -it odoo-pro sh -c "cd /usr/lib/python3/dist-packages/odoo && bash"
 elif [[ "$1" == "logs" ]]; then
     watch -c 'docker logs odoo-pro | tail'
 else
