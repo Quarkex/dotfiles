@@ -50,6 +50,7 @@ elif [[ "$1" == "regenerate" ]]; then
     docker rm odoo-pro-db &&
     docker rm odoo-pro;
     docker run --name odoo-pro-db -d -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo postgres:9.4 &&
+    docker exec -dit odoo-pro-db bash -c 'mkdir /home/postgres && chown postgres:postgres /home/postgres' &&
     docker run --name odoo-pro -t -p 8080:8069 --link odoo-pro-db:db -e USERID=$UID --volume=${HOME}/workbench/odoo-production:/mnt/extra-addons -d odoo
 elif [[ "$1" == "destroy" ]]; then
     docker stop odoo-pro &&
