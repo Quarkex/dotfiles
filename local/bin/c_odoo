@@ -90,7 +90,7 @@ else
         docker rm odoo-$instance;
         docker run --name odoo-$instance-db -d -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo postgres:9.4 &&
         docker exec -dit odoo-$instance-db bash -c 'mkdir /home/postgres && chown postgres:postgres /home/postgres' &&
-        docker run --name odoo-$instance -t -p ${argumentA-8069}:8069 --link odoo-$instance-db:db --volume=${HOME}/workbench/odoo-$instance:/mnt/extra-addons -d odoo
+        docker run --name odoo-$instance -t -p ${argumentA-8069}:8069 --link odoo-$instance-db:db --volume=${HOME}/docker/odoo-$instance:/mnt/extra-addons -d odoo
     elif [[ "${action}" == "destroy" ]]; then
         docker stop odoo-$instance;
         docker stop odoo-$instance-db;
