@@ -54,7 +54,7 @@ else
             fi
             docker cp "$filename" odoo-$instance-db:"/home/postgres/${filename}"
             docker exec -u postgres -it odoo-$instance-db bash -c \
-                'createdb -u odoo '"${database}"'; psql '"${database}"' < /home/postgres/'"${filename}" &&
+                'createdb -O odoo '"${database}"'; psql '"${database}"' < /home/postgres/'"${filename}" &&
             docker exec -u postgres -it odoo-$instance-db bash -c 'rm -f /home/postgres/'"$filename"
         fi
     elif [[ "${action}" == "dump" ]]; then
