@@ -35,7 +35,10 @@ else
         docker stop odoo-$instance-db
     elif [[ "${action}" == "import" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
-            docker cp "$argumentA" odoo-$instance:"${argumentB-/root/.}"
+            if [[ "$argumentB" == "" ]]; then
+                argumentB="/root/."
+            fi
+            docker cp "$argumentA" odoo-$instance:"$argumentB"
         fi
     elif [[ "${action}" == "export" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
