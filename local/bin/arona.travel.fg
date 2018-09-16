@@ -1,0 +1,50 @@
+#!/bin/bash
+# Enough is enough. Use "case" here!
+if [[ "$1" == "" ]]; then
+    echo "Usage:"
+    echo ""
+    echo "${0##*/} start: Start the Jekyll server."
+    echo ""
+    echo "${0##*/} stop:  Stop the Jekyll server."
+    echo ""
+    echo "${0##*/} enter: Start an interactive shell in the Jekyll server."
+    echo ""
+    echo "${0##*/} build: Build page."
+    echo ""
+    echo "${0##*/} import <file> [target]: Copy file inside the server container."
+    echo ""
+    echo "${0##*/} export <file> [target]: Copy file from the server container."
+    echo ""
+    echo "${0##*/} regenerate: CAREFUL. Erases current docker images and start again"
+    exit 0;
+elif [[ "$1" == "start" ]]; then
+    docker start arona_travel_fg
+elif [[ "$1" == "restart" ]]; then
+    docker stop arona_travel_fg && docker start arona_travel_fg
+elif [[ "$1" == "stop" ]]; then
+    docker stop arona_travel_fg
+elif [[ "$1" == "import" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker cp "$2" arona_travel_fg:"${3-/root/.}"
+    fi
+elif [[ "$1" == "export" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker cp arona_travel_fg:"$2" "${3-.}"
+    fi
+elif [[ "$1" == "build" ]]; then
+    if [[ ! "$2" == "" ]]; then
+        docker exec -it arona_travel_fg sh -c 'cd /srv/jekyll/ && jekyll build'
+    fi
+elif [[ "$1" == "regenerate" ]]; then
+    docker stop arona_travel_fg
+    docker rm arona_travel_fg
+    docker run --name arona_travel_fg --label=arona_travel_fg --volume=${HOME}/workbench/arona.travel:/srv/jekyll -it -p 127.0.0.1:8080:4000 jekyll/jekyll
+elif [[ "$1" == "destroy" ]]; then
+    docker stop arona_travel_fg
+    docker rm arona_travel_fg
+elif [[ "$1" == "enter" ]]; then
+    docker exec -it arona_travel_fg bash
+else
+    echo "Unknown argument: $1"
+    exit 1;
+fi
