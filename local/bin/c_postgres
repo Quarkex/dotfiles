@@ -111,7 +111,7 @@ else
         watch -c 'docker logs postgres-'$instance' | tail'
     elif [[ "${action}" == "psql-eval" ]]; then
         argument="$( echo "$*" | sed -E -e 's/^'"$instance"' //' )"
-        docker exec -u postgres -it postgres-$instance psql -c "${argument##psql }"
+        docker exec -u postgres -it postgres-$instance psql -c "${argument##psql-eval }"
     else
         echo "Unknown argument: ${action}"
         exit 1;
