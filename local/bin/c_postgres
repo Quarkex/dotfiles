@@ -64,7 +64,7 @@ else
             output_name="$argumentB/$filename"
         fi
         if [[ ! "$argumentA" == "" ]]; then
-            docker exec -u postgres -it postgres-$instance bash -c 'pg_dump '"${argumentA}"' > /home/postgres/'"$filename" &&
+            docker exec -u postgres -it postgres-$instance bash -c 'pg_dump -C '"${argumentA}"' > /home/postgres/'"$filename" &&
             docker cp postgres-$instance:"/home/postgres/$filename" "$output_name" &&
             docker exec -u postgres -it postgres-$instance bash -c 'rm /home/postgres/'"$filename"
         fi
