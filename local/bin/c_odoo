@@ -54,8 +54,8 @@ else
     elif [[ "${action}" == "load_files" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
             filename="$argumentA"
-            docker cp "$filename" odoo-$instance:"/var/lib/odoo/${filename}"
-            docker exec -u root -it odoo-$instance bash -c 'cd /var/lib/odoo/ && tar -zxpvf '"$filename"' && chown -R odoo:odoo * && rm '"$filename"
+            docker cp "$filename" odoo-$instance:"/${filename}"
+            docker exec -u root -it odoo-$instance bash -c 'cd / && tar --overwrite -zxpvf '"$filename"' && chown -R odoo:odoo /var/lib/odoo && rm '"$filename"
         fi
     elif [[ "${action}" == "regenerate" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
