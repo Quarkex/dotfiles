@@ -18,8 +18,10 @@ if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
     echo "${0##*/} {instance} undump <file> [db name]:         Import database dump file."
     echo "${0##*/} {instance} regenerate [port]:···············CAREFUL. Erases current docker images and start again"
     echo "${0##*/} {instance} destroy:                         CAREFUL. Erases current docker image"
+    echo "${0##*/} {instance} adduser <user>:··················Adds an user to the database"
+    echo "${0##*/} {instance} passwd <user> <password>:        Changes user password"
     echo "${0##*/} {instance} logs:····························Output docker containter logs to stdin"
-    echo "${0##*/} {instance} psql:                            Bridge to psql binary, will act in main folder"
+    echo "${0##*/} {instance} psql-eval:                       Evaluate a psql expression."
     exit 0;
 else
     if [[ "${action}" == "start" ]]; then
@@ -69,19 +71,47 @@ else
     elif [[ "${action}" == "regenerate" ]]; then
         docker stop postgres-$instance;
         docker rm postgres-$instance;
-        #docker run --name postgres-$instance -p ${argumentA-5432}:5432 --user "$(id -u):$(id -g)" --volume=${HOME}/docker/postgres-$instance:/var/lib/postgresql -d -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres postgres:9.4 &&
-        docker run --name postgres-$instance -p ${argumentA-5432}:5432 -e USERID=$UID -e USER=$USER --volume=${HOME}/docker/postgres-$instance:/var/lib/postgresql/data -d -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres postgres:9.4 &&
+        docker network create --driver bridge postgres-network;
+        docker run -d\
+            --name postgres-$instance\
+            --net=postgres-network\
+            --volume=${HOME}/docker/postgres-$instance:/var/lib/postgresql/data\
+            -e POSTGRES_PASSWORD=postgres\
+            -e POSTGRES_USER=postgres\
+            -e USER=$USER\
+            -e USERID=$UID\
+            -p ${argumentA-5432}:5432\
+            postgres:9.4 &&
         docker exec -dit postgres-$instance bash -c 'mkdir /home/postgres && chown postgres:postgres /home/postgres'
     elif [[ "${action}" == "destroy" ]]; then
         docker stop postgres-$instance;
         docker rm postgres-$instance;
     elif [[ "${action}" == "enter" ]]; then
         docker exec -u postgres -it postgres-$instance sh -c "cd /home/postgres && bash"
+    elif [[ "${action}" == "adduser" ]]; then
+        if [[ ! "$argumentA" == "" ]]; then
+            docker exec -u postgres -it postgres-$instance createuser "$argumentA"
+        else
+            echo "no user specified."
+            exit 1
+        fi
+    elif [[ "${action}" == "passwd" ]]; then
+        if [[ ! "$argumentA" == "" ]]; then
+            if [[ ! "$argumentB" == "" ]]; then
+                docker exec -u postgres -it postgres-$instance psql -c "alter user \"${argumentA}\" with encrypted password '${argumentB}'"
+            else
+                echo "no password specified."
+                exit 1
+            fi
+        else
+            echo "no user specified."
+            exit 1
+        fi
     elif [[ "${action}" == "logs" ]]; then
         watch -c 'docker logs postgres-'$instance' | tail'
-    elif [[ "${action}" == "psql" ]]; then
+    elif [[ "${action}" == "psql-eval" ]]; then
         argument="$( echo "$*" | sed -E -e 's/^'"$instance"' //' )"
-        docker exec -u postgres -it postgres-$instance bash -c "cd /mnt && /usr/bin/$argument"
+        docker exec -u postgres -it postgres-$instance psql -c "${argument##psql }"
     else
         echo "Unknown argument: ${action}"
         exit 1;
