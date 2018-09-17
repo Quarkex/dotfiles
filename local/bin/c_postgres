@@ -52,7 +52,7 @@ else
             fi
             docker cp "$filename" postgres-$instance:"/home/postgres/${filename}"
             docker exec -u postgres -it postgres-$instance bash -c \
-                'createdb -O postgres '"${database}"'; psql '"${database}"' < /home/postgres/'"${filename}" &&
+                'createdb -O postgres '"${database%%.dump}"'; psql '"${database%%.dump}"' < /home/postgres/'"${filename}" &&
             docker exec -u postgres -it postgres-$instance bash -c 'rm -f /home/postgres/'"$filename"
         fi
     elif [[ "${action}" == "dump" ]]; then
