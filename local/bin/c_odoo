@@ -25,14 +25,12 @@ if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
     exit 0;
 else
     if [[ "${action}" == "start" ]]; then
-        docker start odoo-$instance-db &&
-        docker start odoo-$instance
+        docker start odoo-$instance;
     elif [[ "${action}" == "restart" ]]; then
-        docker stop odoo-$instance-db && docker stop odoo-$instance;
-        docker start odoo-$instance-db && docker start odoo-$instance;
+        docker stop odoo-$instance;
+        docker start odoo-$instance;
     elif [[ "${action}" == "stop" ]]; then
-        docker stop odoo-$instance &&
-        docker stop odoo-$instance-db
+        docker stop odoo-$instance;
     elif [[ "${action}" == "import" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
             if [[ "$argumentB" == "" ]]; then
@@ -43,32 +41,6 @@ else
     elif [[ "${action}" == "export" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
             docker cp odoo-$instance:"$argumentA" "${argumentB-.}"
-        fi
-    elif [[ "${action}" == "undump" ]]; then
-        if [[ ! "$argumentA" == "" ]]; then
-            filename="${argumentA}"
-            if [[ $argumentB == "" ]]; then
-                database="$(echo "${argumentA}" | sed -E -e 's/_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}.dump$//')"
-            else
-                database="$argumentB"
-            fi
-            docker cp "$filename" odoo-$instance-db:"/home/postgres/${filename}"
-            docker exec -u postgres -it odoo-$instance-db bash -c \
-                'createdb -O odoo '"${database}"'; psql '"${database}"' < /home/postgres/'"${filename}" &&
-            docker exec -u postgres -it odoo-$instance-db bash -c 'rm -f /home/postgres/'"$filename"
-        fi
-    elif [[ "${action}" == "dump" ]]; then
-        timestamp="$(date +%Y-%m-%d_%H-%M-%S)"
-        filename="${argumentA}"'_'"${timestamp}"'.dump'
-        if [[ $argumentB == "" ]]; then
-            output_name="./$filename"
-        else
-            output_name="$argumentB/$filename"
-        fi
-        if [[ ! "$argumentA" == "" ]]; then
-            docker exec -u postgres -it odoo-$instance-db bash -c 'pg_dump '"${argumentA}"' > /home/postgres/'"$filename" &&
-            docker cp odoo-$instance-db:"/home/postgres/$filename" "$output_name" &&
-            docker exec -u postgres -it odoo-$instance-db bash -c 'rm /home/postgres/'"$filename"
         fi
     elif [[ "${action}" == "save_files" ]]; then
         timestamp="$(date +%Y-%m-%d_%H-%M-%S)"
@@ -89,31 +61,13 @@ else
         fi
     elif [[ "${action}" == "regenerate" ]]; then
         docker stop odoo-$instance;
-        docker stop odoo-$instance-db;
-        docker rm odoo-$instance-db;
         docker rm odoo-$instance;
-        docker run --name odoo-$instance-db -d -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo postgres:9.4 &&
-        docker exec -dit odoo-$instance-db bash -c 'mkdir /home/postgres && chown postgres:postgres /home/postgres' &&
-        docker run --name odoo-$instance -t -p ${argumentA-8069}:8069 --link odoo-$instance-db:db --volume=${HOME}/docker/odoo-$instance:/mnt/extra-addons -d odoo
+        docker run --name odoo-$instance -t -p ${argumentA-8069}:8069 --volume=${HOME}/docker/odoo-$instance:/mnt/extra-addons -d odoo
     elif [[ "${action}" == "destroy" ]]; then
         docker stop odoo-$instance;
-        docker stop odoo-$instance-db;
-        docker rm odoo-$instance-db;
         docker rm odoo-$instance;
     elif [[ "${action}" == "enter" ]]; then
-        if [[ $argumentA == "" ]]; then
-            argument="odoo"
-        else
-            argument=${argumentA}
-        fi
-        if [[ "$argument" == "db" ]]; then
-            docker exec -u root -it odoo-$instance-db sh -c "cd /home/postgres && bash"
-        elif [[ "$argument" == "odoo" ]]; then
-            docker exec -u root -it odoo-$instance sh -c "cd /usr/lib/python3/dist-packages/odoo && bash"
-        else
-            echo "Unknown argument: $argument"
-            exit 1;
-        fi
+        docker exec -u root -it odoo-$instance sh -c "cd /usr/lib/python3/dist-packages/odoo && bash"
     elif [[ "${action}" == "logs" ]]; then
         watch -c 'docker logs odoo-'$instance' | tail'
     elif [[ "${action}" == "odoo" ]]; then
