@@ -46,25 +46,29 @@ else
         if [[ ! "$argumentA" == "" ]]; then
             filename="${argumentA}"
             if [[ $argumentB == "" ]]; then
-                database="$(echo "${argumentA}" | sed -E -e 's/_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}.dump$//')"
+                database="$(echo "$filename" | sed -E -e 's/_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}.sqlc$//')"
             else
                 database="$argumentB"
             fi
             docker cp "$filename" postgres-$instance:"/home/postgres/${filename}"
             docker exec -u postgres -it postgres-$instance bash -c \
-                'createdb -O postgres '"${database%%.dump}"'; psql '"${database%%.dump}"' < /home/postgres/'"${filename}" &&
+                'psql -c "'"DROP DATABASE \"${database}\""'"'
+            docker exec -u postgres -it postgres-$instance bash -c \
+                'createdb "'"${database}"'"'
+            docker exec -u postgres -it postgres-$instance bash -c \
+                'pg_restore -C -d '"$database"' /home/postgres/'"${filename}" &&
             docker exec -u postgres -it postgres-$instance bash -c 'rm -f /home/postgres/'"$filename"
         fi
     elif [[ "${action}" == "dump" ]]; then
         timestamp="$(date +%Y-%m-%d_%H-%M-%S)"
-        filename="${argumentA}"'_'"${timestamp}"'.dump'
+        filename="${argumentA}"'_'"${timestamp}"'.sqlc'
         if [[ $argumentB == "" ]]; then
             output_name="./$filename"
         else
             output_name="$argumentB/$filename"
         fi
         if [[ ! "$argumentA" == "" ]]; then
-            docker exec -u postgres -it postgres-$instance bash -c 'pg_dump -C '"${argumentA}"' > /home/postgres/'"$filename" &&
+            docker exec -u postgres -it postgres-$instance bash -c 'pg_dump -U "postgres" --format=c --file=/home/postgres/'"$filename"' '"${argumentA}" &&
             docker cp postgres-$instance:"/home/postgres/$filename" "$output_name" &&
             docker exec -u postgres -it postgres-$instance bash -c 'rm /home/postgres/'"$filename"
         fi
