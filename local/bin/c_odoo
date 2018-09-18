@@ -62,7 +62,7 @@ else
                 --net=postgres-network\
                 -v ${HOME}/docker/odoo-$instance/extra-addons:/mnt/extra-addons\
                 -v ${HOME}/docker/odoo-$instance/data:/var/lib/odoo\
-                -e DB_PORT_5432_TCP_ADDR="postgres-$argumentA"\
+                -e HOST=postgres-$argumentA\
                 -e POSTGRES_PASSWORD=odoo-$instance\
                 -e POSTGRES_USER=odoo-$instance\
                 -p ${argumentB-8069}:8069\
@@ -79,7 +79,7 @@ else
     elif [[ "${action}" == "enter" ]]; then
         docker exec -u root -it odoo-$instance sh -c "cd /usr/lib/python3/dist-packages/odoo && bash"
     elif [[ "${action}" == "logs" ]]; then
-        watch -c 'docker logs odoo-'$instance' | tail'
+        docker logs odoo-"$instance" -f
     elif [[ "${action}" == "odoo" ]]; then
         argument="$( echo "$*" | sed -E -e 's/^'"$instance"' //' )"
         docker exec -u root -it odoo-$instance bash -c "cd /mnt/extra-addons && /usr/bin/$argument"
