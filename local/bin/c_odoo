@@ -15,11 +15,10 @@ if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
     echo "${0##*/} {instance} import <file> [target]:··········Copy file inside the server container."
     echo "${0##*/} {instance} export <file> [target]:          Copy file from the server container."
     echo "${0##*/} {instance} save_files [folder]:·············Export all files inside odoo instance to a backup."
-    echo "${0##*/} {instance} load_files <file>:               Import a backup of all files inside an odoo instance and fix permissions."
-    echo "${0##*/} {instance} regenerate <db instance> [port]:·CAREFUL. Erases current docker images and start again"
-    echo "${0##*/} {instance} destroy:                         CAREFUL. Erases current docker image"
-    echo "${0##*/} {instance} logs:····························Output docker containter logs to stdin"
-    echo "${0##*/} {instance} odoo:                            Bridge to odoo binary, will act in main folder"
+    echo "${0##*/} {instance} regenerate <db instance> [port]: CAREFUL. Erases current docker images and start again"
+    echo "${0##*/} {instance} destroy:·························CAREFUL. Erases current docker image"
+    echo "${0##*/} {instance} logs:                            Output docker containter logs to stdin"
+    echo "${0##*/} {instance} odoo:····························Bridge to odoo binary, will act in main folder"
     exit 0;
 else
     if [[ "${action}" == "start" ]]; then
@@ -48,15 +47,9 @@ else
         else
             output_name="$argumentA/$filename"
         fi
-        docker exec -u root -it odoo-$instance bash -c 'tar -zcpvf /root/'"$filename"' /var/lib/odoo/*' &&
+        docker exec -u root -it odoo-$instance bash -c 'cd /var/lib/odoo && tar -zcpvf /root/'"$filename"' ./*' &&
         docker cp odoo-$instance:"/root/$filename" "$output_name" &&
         docker exec -u root -it odoo-$instance bash -c 'rm /root/'"$filename"
-    elif [[ "${action}" == "load_files" ]]; then
-        if [[ ! "$argumentA" == "" ]]; then
-            filename="$argumentA"
-            docker cp "$filename" odoo-$instance:"/${filename}"
-            docker exec -u root -it odoo-$instance bash -c 'cd / && tar --overwrite -zxpvf '"$filename"' && chown -R odoo:odoo /var/lib/odoo && rm '"$filename"
-        fi
     elif [[ "${action}" == "regenerate" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
             docker stop odoo-$instance;
