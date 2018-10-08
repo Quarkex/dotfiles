@@ -85,7 +85,7 @@ else
     elif [[ "${action}" == "enter" ]]; then
         docker exec -u root -it odoo-$instance sh -c "cd /usr/lib/python3/dist-packages/odoo && bash"
     elif [[ "${action}" == "logs" ]]; then
-        watch -c 'docker logs odoo-'$instance' | tail'
+        docker logs -f odoo-"$instance"
     elif [[ "${action}" == "odoo" ]]; then
         argument="$( echo "$*" | sed -E -e 's/^'"$instance"' //' )"
         docker exec -u root -it odoo-$instance bash -c "cd /mnt/extra-addons && /usr/bin/$argument"
