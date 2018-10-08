@@ -4,24 +4,25 @@ instance="${1}"
 action="${2}"
 argumentA="${3}"
 argumentB="${4}"
+argumentC="${5}"
 
 if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
     echo "Usage:"
     echo ""
     echo "${0##*/} {instance} start:···························Start the image and server."
     echo "${0##*/} {instance} stop:                            Stop the image and server."
-    echo "${0##*/} {instance} restart:·························Perform a stop and a start."
-    echo "${0##*/} {instance} enter:                           Start an interactive shell in the server."
-    echo "${0##*/} {instance} import <file> [target]:··········Copy file inside the server container."
-    echo "${0##*/} {instance} export <file> [target]:          Copy file from the server container."
-    echo "${0##*/} {instance} dump <db name> [folder]:·········Export database dump file."
-    echo "${0##*/} {instance} undump <file> [db name]:         Import database dump file."
-    echo "${0##*/} {instance} regenerate [port]:···············CAREFUL. Erases current docker images and start again"
-    echo "${0##*/} {instance} destroy:                         CAREFUL. Erases current docker image"
-    echo "${0##*/} {instance} adduser <user>:··················Adds an user to the database"
-    echo "${0##*/} {instance} passwd <user> <password>:        Changes user password"
-    echo "${0##*/} {instance} logs:····························Output docker containter logs to stdin"
-    echo "${0##*/} {instance} psql-eval:                       Evaluate a psql expression."
+    echo "${0##*/} {instance} restart:····························Perform a stop and a start."
+    echo "${0##*/} {instance} enter:                              Start an interactive shell in the server."
+    echo "${0##*/} {instance} import <file> [target]:·············Copy file inside the server container."
+    echo "${0##*/} {instance} export <file> [target]:             Copy file from the server container."
+    echo "${0##*/} {instance} dump <db name> [folder]:············Export database dump file."
+    echo "${0##*/} {instance} undump <instance> <file> [db name]: Import database dump file."
+    echo "${0##*/} {instance} regenerate [port]:··················CAREFUL. Erases current docker images and start again"
+    echo "${0##*/} {instance} destroy:                            CAREFUL. Erases current docker image"
+    echo "${0##*/} {instance} adduser <user>:·····················Adds an user to the database"
+    echo "${0##*/} {instance} passwd <user> <password>:           Changes user password"
+    echo "${0##*/} {instance} logs:·······························Output docker containter logs to stdin"
+    echo "${0##*/} {instance} psql-eval:                          Evaluate a psql expression."
     exit 0;
 else
     if [[ "${action}" == "start" ]]; then
@@ -44,31 +45,36 @@ else
         fi
     elif [[ "${action}" == "undump" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
-            filename="${argumentA}"
-            if [[ $argumentB == "" ]]; then
-                database="$(echo "$filename" | sed -E -e 's/_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}.sqlc$//')"
-            else
-                database="$argumentB"
+            if [[ ! "$argumentB" == "" ]]; then
+                odoo_instance="${argumentA}"
+                filename="${argumentB}"
+                if [[ $argumentC == "" ]]; then
+                    database="$(echo "$filename" | sed -E -e 's/_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}.sql$//')"
+                else
+                    database="$argumentC"
+                fi
+                docker cp "$filename" postgres-$instance:"/home/postgres/${filename}"
+                docker exec -u postgres -it postgres-$instance bash -c \
+                    'psql -c "'"DROP DATABASE \\\"${database}\\\""'"'
+                docker exec -u postgres -it postgres-$instance bash -c \
+                    'createdb "'"${database}"'"'
+                docker exec -u postgres -it postgres-$instance bash -c \
+                    'psql -c "'"ALTER DATABASE \\\"${database}\\\" OWNER TO \\\"odoo-${odoo_instance}\\\""'"'
+                docker exec -u postgres -it postgres-$instance bash -c \
+                    'psql '"$database"'</home/postgres/'"${filename}" &&
+                docker exec -u postgres -it postgres-$instance bash -c 'rm -f /home/postgres/'"$filename"
             fi
-            docker cp "$filename" postgres-$instance:"/home/postgres/${filename}"
-            docker exec -u postgres -it postgres-$instance bash -c \
-                'psql -c "'"DROP DATABASE \"${database}\""'"'
-            docker exec -u postgres -it postgres-$instance bash -c \
-                'createdb "'"${database}"'"'
-            docker exec -u postgres -it postgres-$instance bash -c \
-                'pg_restore -C -d '"$database"' /home/postgres/'"${filename}" &&
-            docker exec -u postgres -it postgres-$instance bash -c 'rm -f /home/postgres/'"$filename"
         fi
     elif [[ "${action}" == "dump" ]]; then
         timestamp="$(date +%Y-%m-%d_%H-%M-%S)"
-        filename="${argumentA}"'_'"${timestamp}"'.sqlc'
+        filename="${argumentA}"'_'"${timestamp}"'.sql'
         if [[ $argumentB == "" ]]; then
             output_name="./$filename"
         else
             output_name="$argumentB/$filename"
         fi
         if [[ ! "$argumentA" == "" ]]; then
-            docker exec -u postgres -it postgres-$instance bash -c 'pg_dump -U "postgres" --format=c --file=/home/postgres/'"$filename"' '"${argumentA}" &&
+            docker exec -u postgres -it postgres-$instance bash -c 'pg_dump -U "postgres" -E UTF-8 -F p -b --file=/home/postgres/'"$filename"' '"${argumentA}" &&
             docker cp postgres-$instance:"/home/postgres/$filename" "$output_name" &&
             docker exec -u postgres -it postgres-$instance bash -c 'rm /home/postgres/'"$filename"
         fi

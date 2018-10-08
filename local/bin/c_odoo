@@ -56,13 +56,19 @@ else
             docker rm odoo-$instance;
             docker exec -u postgres -it postgres-$argumentA createuser "odoo-$instance"
             docker exec -u postgres -it postgres-$argumentA psql -c "alter user \"odoo-${instance}\" CREATEDB"
+            # Odoo documentation explicitly says not to give superuser role to it's user,
+            # but database restoration does not work without it. Until proper permissions are
+            # found, we need this line.
+            docker exec -u postgres -it postgres-$argumentA psql -c "alter user \"odoo-${instance}\" WITH SUPERUSER"
+            # Once the issue is resolved, you may switch this line with the previous one to remove superuser privileges
+            #docker exec -u postgres -it postgres-$argumentA psql -c "alter user \"odoo-${instance}\" WITH NOSUPERUSER"
             docker exec -u postgres -it postgres-$argumentA psql -c "alter user \"odoo-${instance}\" with encrypted password 'odoo-${instance}'"
             docker run -t -d\
                 --name odoo-$instance\
                 --net=postgres-network\
                 -v ${HOME}/docker/odoo-$instance/extra-addons:/mnt/extra-addons\
                 -v ${HOME}/docker/odoo-$instance/data:/var/lib/odoo\
-                -e HOST=postgres-$argumentA\
+                -e DB_PORT_5432_TCP_ADDR="postgres-$argumentA"\
                 -e POSTGRES_PASSWORD=odoo-$instance\
                 -e POSTGRES_USER=odoo-$instance\
                 -p ${argumentB-8069}:8069\
@@ -79,7 +85,7 @@ else
     elif [[ "${action}" == "enter" ]]; then
         docker exec -u root -it odoo-$instance sh -c "cd /usr/lib/python3/dist-packages/odoo && bash"
     elif [[ "${action}" == "logs" ]]; then
-        docker logs odoo-"$instance" -f
+        watch -c 'docker logs odoo-'$instance' | tail'
     elif [[ "${action}" == "odoo" ]]; then
         argument="$( echo "$*" | sed -E -e 's/^'"$instance"' //' )"
         docker exec -u root -it odoo-$instance bash -c "cd /mnt/extra-addons && /usr/bin/$argument"
