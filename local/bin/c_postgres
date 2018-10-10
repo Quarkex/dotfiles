@@ -74,9 +74,9 @@ else
             output_name="$argumentB/$filename"
         fi
         if [[ ! "$argumentA" == "" ]]; then
-            docker exec -u postgres -it postgres-$instance bash -c 'pg_dump -U "postgres" -E UTF-8 -F p -b --file=/home/postgres/'"$filename"' '"${argumentA}" &&
+            docker exec -u postgres postgres-$instance bash -c 'pg_dump -U "postgres" -E UTF-8 -F p -b --file=/home/postgres/'"$filename"' '"${argumentA}" &&
             docker cp postgres-$instance:"/home/postgres/$filename" "$output_name" &&
-            docker exec -u postgres -it postgres-$instance bash -c 'rm /home/postgres/'"$filename"
+            docker exec -u postgres postgres-$instance bash -c 'rm /home/postgres/'"$filename"
         fi
     elif [[ "${action}" == "regenerate" ]]; then
         docker stop postgres-$instance;

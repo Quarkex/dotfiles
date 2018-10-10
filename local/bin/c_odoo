@@ -47,9 +47,9 @@ else
         else
             output_name="$argumentA/$filename"
         fi
-        docker exec -u root -it odoo-$instance bash -c 'cd /var/lib/odoo && tar -zcpvf /root/'"$filename"' ./*' &&
+        docker exec -u root odoo-$instance bash -c 'cd /var/lib/odoo && tar -zcpvf /root/'"$filename"' ./*' &&
         docker cp odoo-$instance:"/root/$filename" "$output_name" &&
-        docker exec -u root -it odoo-$instance bash -c 'rm /root/'"$filename"
+        docker exec -u root odoo-$instance bash -c 'rm /root/'"$filename"
     elif [[ "${action}" == "regenerate" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
             docker stop odoo-$instance;
