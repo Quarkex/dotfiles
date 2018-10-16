@@ -18,6 +18,8 @@ Plugin 'Valloric/YouCompleteMe'
 Plugin 'kovisoft/slimv'
 Plugin 'chrisbra/csv.vim'
 Plugin 'elixir-editors/vim-elixir'
+Plugin 'pangloss/vim-javascript'
+Plugin 'mxw/vim-jsx'
 " plugin from http://vim-scripts.org/vim/scripts.html
 "Plugin 'L9'
 " Git plugin not hosted on GitHub
