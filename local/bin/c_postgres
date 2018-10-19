@@ -84,6 +84,7 @@ else
         docker network create --driver bridge postgres-network;
         docker run -d\
             --name postgres-$instance\
+            --restart unless-stopped\
             --net=postgres-network\
             --volume=${HOME}/docker/postgres-$instance:/var/lib/postgresql/data\
             -e POSTGRES_PASSWORD=postgres\

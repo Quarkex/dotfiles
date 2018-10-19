@@ -65,6 +65,7 @@ else
             docker exec -u postgres -it postgres-$argumentA psql -c "alter user \"odoo-${instance}\" with encrypted password 'odoo-${instance}'"
             docker run -t -d\
                 --name odoo-$instance\
+                --restart unless-stopped\
                 --net=postgres-network\
                 -v ${HOME}/docker/odoo-$instance/extra-addons:/mnt/extra-addons\
                 -v ${HOME}/docker/odoo-$instance/data:/var/lib/odoo\
