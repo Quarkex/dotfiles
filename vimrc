@@ -95,6 +95,7 @@ com! FormatJSON %!python -m json.tool
 
 
 
+syntax on
 
 autocmd FileType javascript setl omnifunc=javascriptcomplete#CompleteJS
 autocmd BufNewFile,BufRead *.tex setl omnifunc=syntaxcomplete#Complete
