@@ -61,7 +61,7 @@ WWW_HOME="http://www.google.com"; export WWW_HOME
 # avoid duplicates..
 HISTTIMEFORMAT='%F %T: ';         export HISTTIMEFORMAT
 HISTFILESIZE=-1;                  export HISTFILESIZE
-HISTSIZE=-1;                      export HISTSIZE
+#HISTSIZE=-1;                      export HISTSIZE
 HISTCONTROL=ignoredups:erasedups; export HISTCONTROL
 HISTIGNORE=?:??;                  export HISTIGNORE
 # append history entries..
