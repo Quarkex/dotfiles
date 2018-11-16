@@ -1,5 +1,11 @@
 # Dropbox/.bashrc: To be included by ~/.bashrc
 
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+    *) return;;
+esac
+
 # environment
 if [ -f ~/.dotfiles/environment.sh ]; then
     . ~/.dotfiles/environment.sh
