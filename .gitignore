@@ -1,5 +1,5 @@
-vim/bundle/*
-vim/plugin/*
-vim/autoload/*
-vim/doc/*
-!vim/bundle/Vundle.vim
+/vim/bundle/*
+/vim/plugin/*
+/vim/autoload/*
+/vim/doc/*
+!/vim/bundle/Vundle.vim
