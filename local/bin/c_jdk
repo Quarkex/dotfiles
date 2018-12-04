@@ -54,7 +54,8 @@ else
     elif [[ "${action}" == "logs" ]]; then
         docker logs -f openjdk-"$instance"
     else
+        classpath=/mnt/${PWD##$HOME/docker/openjdk-$instance}
         argument="$( echo "$*" | sed -E -e 's/^'"$instance"' //' )"
-        docker exec -u root -it openjdk-$instance bash -c "cd /mnt && /usr/bin/$argument"
+        docker exec -u root -it openjdk-$instance bash -c "CLASSPATH=\"$classpath\"; cd /mnt && /usr/bin/$argument"
     fi
 fi
