@@ -1,0 +1,61 @@
+#!/bin/bash
+
+instance="${1}"
+action="${2}"
+argumentA="${3}"
+argumentB="${4}"
+
+if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
+    echo "Usage:"
+    echo ""
+    echo "${0##*/} {instance} start:···························Start the image and server."
+    echo "${0##*/} {instance} stop:                            Stop the image and server."
+    echo "${0##*/} {instance} restart:·························Perform a stop and a start."
+    echo "${0##*/} {instance} enter:                           Start an interactive shell in the server."
+    echo "${0##*/} {instance} import <file> [target]:··········Copy file inside the server container."
+    echo "${0##*/} {instance} export <file> [target]:          Copy file from the server container."
+    echo "${0##*/} {instance} regenerate <db instance>:········CAREFUL. Erases current docker images and start again"
+    echo "${0##*/} {instance} destroy:                         CAREFUL. Erases current docker image"
+    echo "${0##*/} {instance} logs:····························Output docker containter logs to stdin"
+    echo "${0##*/} {instance} <anything> [arguments]:          Bridge to openjdk binaries, will act in main folder"
+    exit 0;
+else
+    if [[ "${action}" == "start" ]]; then
+        docker start openjdk-$instance;
+    elif [[ "${action}" == "restart" ]]; then
+        docker stop openjdk-$instance;
+        docker start openjdk-$instance;
+    elif [[ "${action}" == "stop" ]]; then
+        docker stop openjdk-$instance;
+    elif [[ "${action}" == "import" ]]; then
+        if [[ ! "$argumentA" == "" ]]; then
+            if [[ "$argumentB" == "" ]]; then
+                argumentB="/root/."
+            fi
+            docker cp "$argumentA" openjdk-$instance:"$argumentB"
+        fi
+    elif [[ "${action}" == "export" ]]; then
+        if [[ ! "$argumentA" == "" ]]; then
+            docker cp openjdk-$instance:"$argumentA" "${argumentB-.}"
+        fi
+    elif [[ "${action}" == "regenerate" ]]; then
+        docker stop openjdk-$instance;
+        docker rm openjdk-$instance;
+        docker run -t -d\
+            --name openjdk-$instance\
+            --restart unless-stopped\
+            -v ${HOME}/docker/openjdk-$instance:/mnt\
+            openjdk
+    elif [[ "${action}" == "destroy" ]]; then
+        docker stop openjdk-$instance;
+        docker rm openjdk-$instance;
+    elif [[ "${action}" == "enter" ]]; then
+        docker exec -u root -it openjdk-$instance sh -c "cd /mnt && bash"
+    elif [[ "${action}" == "logs" ]]; then
+        docker logs -f openjdk-"$instance"
+    else
+        classpath=/mnt/${PWD##$HOME/docker/openjdk-$instance}
+        argument="$( echo "$*" | sed -E -e 's/^'"$instance"' //' )"
+        docker exec -u root -it openjdk-$instance bash -c "CLASSPATH=\"$classpath\"; cd \$CLASSPATH && /usr/bin/$argument"
+    fi
+fi
