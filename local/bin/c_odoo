@@ -18,14 +18,19 @@ if [[ $instance == "help" || $instance == "" || $instance == "-h" ]]; then
     echo "${0##*/} {instance} regenerate <db instance> [port]: CAREFUL. Erases current docker images and start again"
     echo "${0##*/} {instance} destroy:·························CAREFUL. Erases current docker image"
     echo "${0##*/} {instance} logs:                            Output docker containter logs to stdin"
-    echo "${0##*/} {instance} odoo:····························Bridge to odoo binary, will act in main folder"
+    echo "${0##*/} {instance} fix_permission:··················Fix permissions to functional values"
+    echo "${0##*/} {instance} update_modules:                  Update all modules managed by git projects"
+    echo "${0##*/} {instance} port:····························Show assigned port of instance"
+    echo "${0##*/} {instance} odoo:                            Bridge to odoo binary, will act in main folder"
     exit 0;
 else
     if [[ "${action}" == "start" ]]; then
         docker start odoo-$instance;
+        docker exec -u root -it odoo-$instance bash -c 'cd /mnt/extra-addons/; for i in */; do if [[ -e  "${i}requirements.txt" ]]; then pip3 install -r "${i}requirements.txt"; fi; done'
     elif [[ "${action}" == "restart" ]]; then
         docker stop odoo-$instance;
         docker start odoo-$instance;
+        docker exec -u root -it odoo-$instance bash -c 'cd /mnt/extra-addons/; for i in */; do if [[ -e  "${i}requirements.txt" ]]; then pip3 install -r "${i}requirements.txt"; fi; done'
     elif [[ "${action}" == "stop" ]]; then
         docker stop odoo-$instance;
     elif [[ "${action}" == "import" ]]; then
@@ -52,6 +57,25 @@ else
         docker exec -u root odoo-$instance bash -c 'rm /root/'"$filename"
     elif [[ "${action}" == "regenerate" ]]; then
         if [[ ! "$argumentA" == "" ]]; then
+            instance_project_folder="$HOME/workbench/odoo-instances/$instance/";
+            instance_project="git@git.cip.es:/home/git/projects/odoo-instance-$instance";
+
+            sudo -u git /home/git/git-shell-commands/new "odoo-instance-$instance"
+            mkdir -p "$instance_project_folder"
+
+            pushd .;
+            cd "$instance_project_folder";
+            git clone "$instance_project" .;
+            if [[ ! -e "module_requirements.txt" ]]; then
+                touch "requirements.txt";
+                touch "package_requirements.txt";
+                touch "module_requirements.txt";
+                git add *;
+                git commit -m "Initial commit";
+                git push -u origin master;
+            fi
+            popd;
+
             docker stop odoo-$instance;
             docker rm odoo-$instance;
             docker exec -u postgres -it postgres-$argumentA createuser "odoo-$instance"
@@ -67,8 +91,7 @@ else
                 --name odoo-$instance\
                 --restart unless-stopped\
                 --net=postgres-network\
-                -v ${HOME}/docker/odoo-$instance/extra-addons:/mnt/extra-addons\
-                -v ${HOME}/docker/odoo-$instance/data:/var/lib/odoo\
+                -v ${HOME}/docker/odoo-$instance:/var/lib/odoo\
                 -e DB_PORT_5432_TCP_ADDR="postgres-$argumentA"\
                 -e POSTGRES_PASSWORD=odoo-$instance\
                 -e POSTGRES_USER=odoo-$instance\
@@ -76,6 +99,50 @@ else
                 odoo
             docker exec -u root -it odoo-$instance bash -c "chown -R odoo:odoo /var/lib/odoo"
             docker exec -u root -it odoo-$instance bash -c "sed -i /etc/odoo/odoo.conf -e 's/^; db_maxconn = 64$/db_maxconn = 10/'"
+            docker exec -u root -it odoo-$instance bash -c '
+                mkdir "$HOME/.ssh" &&
+                echo "Host git.cip.es"                 >>"$HOME/.ssh/config";
+                echo "    HostName git.cip.es"         >>"$HOME/.ssh/config";
+                echo "    User git"                    >>"$HOME/.ssh/config";
+                echo "    PubKeyAuthentication yes"    >>"$HOME/.ssh/config";
+                echo "    IdentityFile ~/.ssh/cip_git" >>"$HOME/.ssh/config";
+                echo "    StrictHostKeyChecking=no"    >>"$HOME/.ssh/config";
+            '
+            docker cp ~/.ssh/cip_git odoo-$instance:"/root/.ssh/."
+            docker exec -u root -it odoo-$instance bash -c "apt-get update && apt-get install git python-pip -y" &&
+            docker exec -u root -it odoo-$instance bash -c "pip3 install --upgrade pip" &&
+            docker exec -u root -it odoo-$instance bash -c "sed 's/from pip import/from pip._internal import/' /usr/bin/pip*" &&
+            docker exec -u root -it odoo-$instance bash -c '
+                    cd /mnt/extra-addons/;
+                    git clone --recurse-submodules -j8 git@git.cip.es:/home/git/projects/odoo-instance-'"$instance"'.git .;
+                    if [ $? -eq 0 ]; then
+                        if [[ -e "package_requirements.txt" ]]; then 
+                            apt-get install $(cat "package_requirements.txt" | paste -sd " " - ) -y;
+                        fi;
+                        if [[ -e "requirements.txt" ]]; then 
+                            pip3 install -r "requirements.txt";
+                        fi;
+                        if [[ -e "module_requirements.txt" ]]; then 
+                            while read line; do
+                                echo "This module needs $line";
+                            done<"module_requirements.txt";
+                        fi;
+
+                        for i in */; do
+                            if [[ -e "${i}package_requirements.txt" ]]; then 
+                                apt-get install $(cat "${i}package_requirements.txt" | paste -sd " " - ) -y;
+                            fi;
+                            if [[ -e "${i}requirements.txt" ]]; then 
+                                pip3 install -r "${i}requirements.txt";
+                            fi;
+                            if [[ -e "${i}module_requirements.txt" ]]; then 
+                                while read line; do
+                                    echo "This module needs $line";
+                                done<"${i}module_requirements.txt";
+                            fi;
+                        done;
+                    fi;
+                    '
         else
             echo "postgres db instance not specified."
             exit 1
@@ -85,8 +152,93 @@ else
         docker rm odoo-$instance;
     elif [[ "${action}" == "enter" ]]; then
         docker exec -u root -it odoo-$instance sh -c "cd /usr/lib/python3/dist-packages/odoo && bash"
+    elif [[ "${action}" == "fix_permissions" ]]; then
+        docker exec -u root -it odoo-$instance bash -c "chown -R odoo:odoo /var/lib/odoo"
+        docker exec -u root -it odoo-$instance bash -c "chown -R $UID:$(id -g) /mnt/extra-addons"
+    elif [[ "${action}" == "update_modules" ]]; then
+        echo "Fixin permissions...";
+        docker exec -u root -it odoo-$instance bash -c "chown -R $UID:$(id -g) /mnt/extra-addons"
+        pushd . >/dev/null
+        cd "$HOME/docker/odoo-$instance/extra-addons/" &&
+        echo "Updating...";
+        for i in */; do
+            if [[ -e "$i/.git" ]]; then
+                cd "$i"; echo  "${i%/}: $(git pull)"; cd ..
+            fi
+        done
+        echo "Done.";
+        popd >/dev/null
+    elif [[ "${action}" == "port" ]]; then
+        docker inspect odoo-"$instance" | grep HostPort | head -n 1 | sed -e 's/^.*: "//' -e 's/".*$//'
     elif [[ "${action}" == "logs" ]]; then
         docker logs -f odoo-"$instance"
+    elif [[ "${action}" == "install_module" ]]; then
+        if [[ ! "$argumentA" == "" ]]; then
+            if [[ -d "$argumentA" ]]; then
+                module="${argumentA%/$}";
+                module="${module##*/}";
+                instance_project_folder="$HOME/workbench/odoo-instances/$instance/";
+                module_project_folder="$HOME/workbench/odoo-modules/$module/";
+                module_project="git@git.cip.es:/home/git/projects/odoo-module-$module";
+
+                sudo -u git /home/git/git-shell-commands/new "odoo-module-$module"
+                mkdir -p "$module_project_folder"
+
+                pushd .;
+                cd "$module_project_folder";
+                git clone "$module_project" .;
+                popd;
+                cp -r "$argumentA"/* "$module_project_folder".;
+                pushd .;
+                cd "$module_project_folder";
+                git add *;
+                git commit -m "Initial commit";
+                git push -u origin master;
+
+                if [[ -e "$instance_project_folder" ]]; then
+                    cd "$instance_project_folder";
+                    echo "$module" >>"module_requirements.txt";
+                    module_list="$(sort "module_requirements.txt" | uniq)";
+                    echo "$module_list" >"module_requirements.txt";
+                    git add module_requirements.txt;
+                    git submodule add "git@git.cip.es:/home/git/projects/odoo-module-$module" "$module";
+                    git commit -m "Install new module $module";
+                    git push -u origin master;
+                else
+                    instance_project="git@git.cip.es:/home/git/projects/odoo-instance-$instance";
+
+                    sudo -u git /home/git/git-shell-commands/new "odoo-instance-$instance";
+                    mkdir -p "$instance_project_folder";
+
+                    pushd .;
+                    cd "$instance_project_folder";
+                    git clone "$instance_project" .;
+                    if [[ ! -e "module_requirements.txt" ]]; then
+                        touch "requirements.txt";
+                        touch "package_requirements.txt";
+                        touch "module_requirements.txt";
+                        git add *;
+                        git commit -m "Initial commit";
+                        git push -u origin master;
+                    fi
+
+                    echo "$module" >>"module_requirements.txt";
+                    module_list="$(sort "module_requirements.txt" | uniq)";
+                    echo "$module_list" >"module_requirements.txt";
+
+                    git add module_requirements.txt;
+                    git submodule add "git@git.cip.es:/home/git/projects/odoo-module-$module" "$module";
+                    git commit -m "Install new module $module";
+                    git push -u origin master;
+                    popd;
+                fi
+
+                popd;
+
+            docker exec -u root -it odoo-$instance bash -c 'cd /mnt/extra-addons/; git pull --recurse-submodules git@git.cip.es:/home/git/projects/odoo-instance-'"$instance"'.git;';
+
+            fi
+        fi
     elif [[ "${action}" == "odoo" ]]; then
         argument="$( echo "$*" | sed -E -e 's/^'"$instance"' //' )"
         docker exec -u root -it odoo-$instance bash -c "cd /mnt/extra-addons && /usr/bin/$argument"
