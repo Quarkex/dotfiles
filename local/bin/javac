@@ -1,0 +1,1 @@
+$HOME/.dotfiles/local/bin/c_openjdk pro ${0##*/} $@
