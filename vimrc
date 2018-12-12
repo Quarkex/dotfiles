@@ -25,6 +25,7 @@ Plugin 'terryma/vim-multiple-cursors'
 Plugin 'tpope/vim-surround'
 Plugin 'scrooloose/nerdtree'
 Plugin 'Xuyuanp/nerdtree-git-plugin'
+Plugin 'w0rp/ale'
 " plugin from http://vim-scripts.org/vim/scripts.html
 "Plugin 'L9'
 " Git plugin not hosted on GitHub
