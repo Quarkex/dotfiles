@@ -23,6 +23,8 @@ Plugin 'mxw/vim-jsx'
 Plugin 'airblade/vim-gitgutter'
 Plugin 'terryma/vim-multiple-cursors'
 Plugin 'tpope/vim-surround'
+Plugin 'scrooloose/nerdtree'
+Plugin 'Xuyuanp/nerdtree-git-plugin'
 " plugin from http://vim-scripts.org/vim/scripts.html
 "Plugin 'L9'
 " Git plugin not hosted on GitHub
@@ -165,6 +167,8 @@ inoremap <A-j> <Esc>:m .+1<CR>==gi
 inoremap <A-k> <Esc>:m .-2<CR>==gi
 vnoremap <A-j> :m '>+1<CR>gv=gv
 vnoremap <A-k> :m '<-2<CR>gv=gv
+
+map <C-o> :NERDTreeToggle<CR>
 
 let mapleader="º"
 
