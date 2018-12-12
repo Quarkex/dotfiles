@@ -60,7 +60,7 @@ set history=1000                  " Store a ton of history (default is 20)
 set background=dark               " Assume a dark background
 set virtualedit=all               " allow for cursor beyond last character
 set cursorline                    " highlight current line
-" set nu                            " Line numbers on
+set nu                            " Line numbers on
 set showmatch                     " show matching brackets/parenthesis
 set incsearch                     " find as you type search
 set hlsearch                      " highlight search terms
