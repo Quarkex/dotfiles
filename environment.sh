@@ -1,5 +1,5 @@
 # Add local bin folder to path
-PATH="$PATH:$HOME/.local/bin"; export PATH
+PATH="$HOME/.local/bin:$PATH"; export PATH
 CDPATH="$CDPATH:~/workbench:~/vault:~/forge"; export CDPATH
 EDITOR="vim"; export EDITOR
 
