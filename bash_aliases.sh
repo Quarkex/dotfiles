@@ -28,3 +28,24 @@ alias ainputs="pacmd list-sink-inputs | grep -e 'media.name' -e 'index:'"
 alias asetport="pacmd set-sink-port"
 alias asetsink="pacmd set-default-sink "
 alias amovesink="pacmd move-sink-input "
+
+alias l='ls'
+alias la='ls -a'
+alias ll='ls -al'
+
+alias add='git add'
+alias amend='git amend'
+alias ammend='git amend' # yes, I know...
+alias commit='git commit'
+alias log='git log'
+alias pull='git pull'
+alias push='git push'
+alias status='git status'
+alias changes='git changes'
+alias last_change='git lastchange'
+
+alias d='git diff'
+alias s='status'
+alias lg='git lg'
+alias lc='last_change'
+alias damn='git damn'

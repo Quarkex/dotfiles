@@ -9,6 +9,9 @@
     lg3 = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     lg = !"git lg1"
     amend = commit --amend
+    damn = checkout --
+    changes = log -p --follow
+    lastchange = log -p --follow -1
 [push]
     default = simple
 [color]
