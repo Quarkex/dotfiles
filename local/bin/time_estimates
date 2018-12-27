@@ -1,0 +1,49 @@
+output="";
+log="$(git log --reverse --date=local --pretty="format:|%ai|%aN|%s|${PWD##*/}|" | sed -e 's/ /|/' -e 's/ /|/')";
+oldDate='?';
+oldDatetime='  :  :  ';
+oldIFS="$IFS";
+IFS=\|;
+while read -r line; do
+    read _ date datetime timezone name message _ <<<"$line";
+    car="${datetime%%:*}";
+    cdr="${datetime#*:}";
+    if [[ $timezone == '+0000' ]]; then
+        car=$(( ${car#0} + 1 ));
+        if [[ $car < 10 ]]; then
+            car=0$car;
+        fi
+    fi;
+    datetime="$car:$cdr";
+    if [[ ! $oldDate == $date ]]; then
+        if [[ "${car#0}" -ge "12" ]]; then
+            oldDatetime='12:00:00';
+        else
+            if [[ "${car#0}" -le "8" ]]; then
+                oldDatetime='00:00:00';
+            else
+                oldDatetime='08:00:00';
+            fi;
+        fi;
+        #oldDatetime='  :  :  ';
+    fi;
+    if [[ ! $oldDatetime == '  :  :  ' ]]; then
+        # Convert the times to seconds from the Epoch
+        SEC1=`date +%s -d ${datetime}`;
+        SEC2=`date +%s -d ${oldDatetime}`;
+
+        # Use expr to do the math, let's say TIME1 was the start and TIME2 was the finish
+        DIFFSEC=`expr ${SEC1} - ${SEC2}`;
+
+        # And use date to convert the seconds back to something more meaningful
+        hours=`date +%H:%M:%S -ud @${DIFFSEC}`;
+    else
+        hours='  :  :  ';
+    fi;
+    oldDatetime="$datetime";
+    oldDate="$date";
+    output="|$date|$datetime|$hours|$name|$message|
+$output";
+done<<<"$log";
+IFS="$oldIFS";
+echo "$output"
