@@ -14,7 +14,8 @@ Plugin 'gmarik/Vundle.vim'
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
 Plugin 'tpope/vim-fugitive'
-Plugin 'Valloric/YouCompleteMe'
+#Plugin 'Valloric/YouCompleteMe'
+Plugin 'ajh17/VimCompletesMe'
 Plugin 'kovisoft/slimv'
 Plugin 'chrisbra/csv.vim'
 Plugin 'elixir-editors/vim-elixir'
