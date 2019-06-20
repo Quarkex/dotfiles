@@ -28,6 +28,8 @@ Plugin 'tpope/vim-endwise'
 Plugin 'scrooloose/nerdtree'
 Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'w0rp/ale'
+Plugin 'davidhalter/jedi'
+Plugin 'nsf/gocode', {'rtp': 'vim/'}
 " plugin from http://vim-scripts.org/vim/scripts.html
 "Plugin 'L9'
 " Git plugin not hosted on GitHub
