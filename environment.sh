@@ -1,6 +1,6 @@
 # Add local bin folder to path
 PATH="$HOME/.local/bin:$PATH"; export PATH
-CDPATH="$CDPATH:~/workbench:~/vault:~/forge"; export CDPATH
+CDPATH="$CDPATH:/srv/compose/"; export CDPATH
 EDITOR="vim"; export EDITOR
 
 USER_COLOR="\[\e[38;5;$((0x$(sha1sum <<<"$USER"|cut -c1-2)))m\]"; export USER_COLOR
@@ -59,16 +59,16 @@ WWW_HOME="http://www.google.com"; export WWW_HOME
 
 # Lets keep commands executed in multiple shells...
 # avoid duplicates..
-HISTTIMEFORMAT='%F %T: ';         export HISTTIMEFORMAT
-HISTFILESIZE=-1;                  export HISTFILESIZE
+#HISTTIMEFORMAT='%F %T: ';         export HISTTIMEFORMAT
+#HISTFILESIZE=-1;                  export HISTFILESIZE
 #HISTSIZE=-1;                      export HISTSIZE
-HISTCONTROL=ignoredups:erasedups; export HISTCONTROL
-HISTIGNORE=?:??;                  export HISTIGNORE
+#HISTCONTROL=ignoredups:erasedups; export HISTCONTROL
+#HISTIGNORE=?:??;                  export HISTIGNORE
 # append history entries..
-shopt -s histappend
+#shopt -s histappend
 # attempt to save all lines of a multiple-line command in the same history entry
-shopt -s cmdhist
+#shopt -s cmdhist
 # save multi-line commands to the history with embedded newlines
-shopt -s lithist
+#shopt -s lithist
 # After each command, save and reload history
-PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"; export PROMPT_COMMAND
+#PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"; export PROMPT_COMMAND
