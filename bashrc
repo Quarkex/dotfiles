@@ -45,3 +45,11 @@ done
     #fi
 #fi
 
+# Configure GIT variables
+GIT_AUTHOR_NAME="$(getent passwd $USER | cut -d: -f5 | cut -d, -f1)"
+GIT_AUTHOR_EMAIL="$(getent passwd $USER | cut -d: -f5 | cut -d, -f5)"
+GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+GIT_EDITOR=vim
+export GIT_AUTHOR_NAME GIT_COMMITTER_NAME GIT_AUTHOR_EMAIL GIT_COMMITTER_EMAIL GIT_EDITOR
+
