@@ -14,7 +14,8 @@ Plugin 'gmarik/Vundle.vim'
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
 Plugin 'tpope/vim-fugitive'
-Plugin 'Valloric/YouCompleteMe'
+"Plugin 'Valloric/YouCompleteMe'
+Plugin 'ajh17/VimCompletesMe'
 Plugin 'kovisoft/slimv'
 Plugin 'chrisbra/csv.vim'
 Plugin 'elixir-editors/vim-elixir'
@@ -240,3 +241,8 @@ endfunction
 autocmd BufRead,BufNewFile,BufEnter *.html,*.md,*.markdown call Liquid()
 
 map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+
+" Call everytime we open a golang file
+autocmd BufRead,BufNewFile,BufEnter *.go,*.golang map <F6> :w\|! go run main.go<CR>
+autocmd BufRead,BufNewFile,BufEnter *.go,*.golang map <C-F6> :w\| new \| 0read ! go run main.go<CR>
+

@@ -29,6 +29,8 @@ alias asetport="pacmd set-sink-port"
 alias asetsink="pacmd set-default-sink "
 alias amovesink="pacmd move-sink-input "
 
+alias dc="docker-compose"
+
 alias l='ls'
 alias la='ls -a'
 alias ll='ls -al'
