@@ -31,6 +31,7 @@ Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'w0rp/ale'
 Plugin 'davidhalter/jedi'
 Plugin 'nsf/gocode', {'rtp': 'vim/'}
+Plugin 'neoclide/coc.nvim', {'pinned': 1}
 " plugin from http://vim-scripts.org/vim/scripts.html
 "Plugin 'L9'
 " Git plugin not hosted on GitHub
