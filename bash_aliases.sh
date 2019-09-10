@@ -5,7 +5,7 @@ alias service="sudo service"
 alias ding="play /usr/share/sounds/freedesktop/stereo/complete.oga"
 #alias copy="rsync -az"
 alias ls="ls --color=auto --group-directories-first"
-alias :q='exit'
+alias :q='builtin exit'
 alias hasstring='find . -type f -print0 | xargs -0 grep $1'
 alias cls='clear && echo "Current directory: $(pwd)" && ls'
 alias xampp='sudo /opt/lampp/lampp'
