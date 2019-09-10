@@ -22,10 +22,12 @@ Plugin 'elixir-editors/vim-elixir'
 Plugin 'pangloss/vim-javascript'
 Plugin 'mxw/vim-jsx'
 Plugin 'airblade/vim-gitgutter'
+Plugin 'junegunn/vim-easy-align'
 Plugin 'terryma/vim-multiple-cursors'
 Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-repeat'
 Plugin 'tpope/vim-endwise'
+Plugin 'bronson/vim-trailing-whitespace'
 Plugin 'scrooloose/nerdtree'
 Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'w0rp/ale'
@@ -247,3 +249,10 @@ map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans
 autocmd BufRead,BufNewFile,BufEnter *.go,*.golang map <F6> :w\|! go run main.go<CR>
 autocmd BufRead,BufNewFile,BufEnter *.go,*.golang map <C-F6> :w\| new \| 0read ! go run main.go<CR>
 
+if (exists('+colorcolumn'))
+    set colorcolumn=80
+    highlight ColorColumn ctermbg=9
+endif
+
+" Easy align interactive
+vnoremap <silent> <Enter> :EasyAlign<cr>
