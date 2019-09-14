@@ -29,6 +29,7 @@ sudo apt install \
     git \
     htop \
     lynx \
+    rename \
     tmux \
     wget \
 -y
