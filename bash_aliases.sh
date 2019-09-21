@@ -51,3 +51,5 @@ alias s='status'
 alias lg='git lg'
 alias lc='last_change'
 alias damn='git damn'
+
+alias quaff="iex -S mix"
