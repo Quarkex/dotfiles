@@ -1,6 +1,17 @@
 # Dropbox/.bashrc: To be included by ~/.bashrc
 
-# If not running interactively, don't do anything
+# aliases
+if [ -f ~/.dotfiles/bash_aliases.sh ]; then
+    . ~/.dotfiles/bash_aliases.sh
+fi
+shopt -s expand_aliases
+
+# functions
+for i in ~/.dotfiles/functions/*.sh; do
+    source "$i"
+done
+
+# If not running interactively, don't do anything else
 case $- in
     *i*) ;;
     *) return;;
@@ -10,16 +21,6 @@ esac
 if [ -f ~/.dotfiles/environment.sh ]; then
     . ~/.dotfiles/environment.sh
 fi
-
-# aliases
-if [ -f ~/.dotfiles/bash_aliases.sh ]; then
-    . ~/.dotfiles/bash_aliases.sh
-fi
-
-# functions
-for i in ~/.dotfiles/functions/*.sh; do
-    source "$i"
-done
 
 # Auto-screen invocation. see: http://taint.org/wk/RemoteLoginAutoScreen
 # if we're coming from a remote SSH connection, in an interactive session

@@ -94,6 +94,7 @@ set tabstop=4                     " an indentation every four columns
 set softtabstop=4                 " let backspace delete indent
 set nrformats-=octal              " we rarely find octal numbers to increase in the wild
 
+let $BASH_ENV = "$HOME/.dotfiles/bashrc"
 
 set backup                        " backups are nice ...
 set backupdir=$HOME/.vim_backup/ " but not when they clog .
