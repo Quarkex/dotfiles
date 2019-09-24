@@ -14,34 +14,15 @@ PROMPT_CHAIN_COLOR="${USER_COLOR}\u${CLEAR_COLOR}@${HOST_COLOR}\h${CLEAR_COLOR}:
 #standard ubuntu prompt:
 #PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\u@\h:\w\$"; export PS1
 
-#nonr-standard ubuntu prompt:
+#non-standard ubuntu prompt:
+
 #Non-colored
 #PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\u@\h:\w\$"; export PS1
+
 #Colored
-__update_ps1() {
-    if [ -n "$(type -t __git_ps1)" ] && [ "$(type -t __git_ps1)" == function ]; then
-        if [[ $TERM == *256color* ]]; then
-            PS1="\[\e]0;\u@\h: \w\a\]${PROMPT_CHAIN_COLOR}$(__git_ps1 " (%s)")$INPUT_COLOR"'\$ ';
-        else
-            PS1='\[\e]0;\u@\h: \w\a\]'"${PROMPT_CHAIN}$(__git_ps1 " (%s)")"'\$ ';
-        fi
-    else
-        if [[ -f /etc/local/git-prompt.sh ]]; then
-            source /etc/local/git-prompt.sh
-            __update_ps1
-        else
-            if [[ "$(id -Gn $USER | grep '\bsudo\b')" ]]; then
-                if [[ ! -d /etc/local ]]; then
-                    sudo mkdir /etc/local
-                fi
-                sudo curl -o /etc/local/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh
-                __update_ps1
-            fi
-        fi
-    fi
-}
 __update_ps1
 PROMPT_COMMAND="__update_ps1; $PROMPT_COMMAND"; export PROMPT_COMMAND
+
 #If you do not reset the text color at the end of your prompt, both the text you enter and the console text will simply stay in that color. If you want to edit text in a special color but still use the default color for command output, you will need to reset the color after you press Enter, but still before any commands get run. You can do this by installing a DEBUG trap, like this:
 trap 'echo -ne "\e[0m"' DEBUG
 
