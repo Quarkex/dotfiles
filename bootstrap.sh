@@ -12,7 +12,7 @@ for dir in \
     fi
 done
 
-if [ -d $HOME/Plantillas ]; then
+if [[ -d $HOME/Plantillas && ! -L $HOME/Plantillas ]]; then
     rmdir $HOME/Plantillas
     ln -s $HOME/.dotfiles/plantillas $HOME/Plantillas
 fi
