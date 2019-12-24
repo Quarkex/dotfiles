@@ -64,9 +64,8 @@ if [ ! $? -eq 0 ]; then
 fi
 
 # Hook bash_profile
-if [ ! "$(tail -n 4 $HOME/.bash_profile | head -n 1)" == "# Load personal bash_profile" ];
-then echo '
-
+grep "# Load personal bash_profile" $HOME/.bash_profile &>/dev/null
+if [ ! $? -eq 0 ]; then echo '
 # Load personal bash_profile
 if [ -f ~/.dotfiles/bash_profile ]; then
     . ~/.dotfiles/bash_profile
@@ -74,9 +73,8 @@ fi'>>$HOME/.bash_profile
 fi
 
 # Hook bashrc
-if [ ! "$(tail -n 4 $HOME/.bashrc | head -n 1)" == "# Load personal bashrc" ];
-then echo '
-
+grep "# Load personal bashrc" $HOME/.bashrc &>/dev/null
+if [ ! $? -eq 0 ]; then echo '
 # Load personal bashrc
 if [ -f ~/.dotfiles/bashrc ]; then
     . ~/.dotfiles/bashrc
