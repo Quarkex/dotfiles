@@ -54,6 +54,15 @@ for file in \
     fi
 done
 
+# Hook ssh config file
+if [ ! -d ~/.ssh ];        then mkdir ~/.ssh;        fi
+if [ ! -f ~/.ssh/config ]; then touch ~/.ssh/config; fi
+grep "Include ~/.dotfiles/ssh/config" ~/.ssh/config &>/dev/null
+if [ ! $? -eq 0 ]; then
+    echo -e "Include ~/.dotfiles/ssh/config\n$(cat ~/.ssh/config)" \
+        >~/.ssh/config
+fi
+
 # Hook bash_profile
 if [ ! "$(tail -n 4 $HOME/.bash_profile | head -n 1)" == "# Load personal bash_profile" ];
 then echo '
