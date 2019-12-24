@@ -7,8 +7,7 @@ Host *+*
  # Configuración global #
 ########################
 Host *
-User quarkex
-IdentityFile ~/.ssh/quarkex
+IdentityFile ~/.ssh/default_key
 ForwardAgent yes
 AddKeysToAgent yes
 AddressFamily inet
