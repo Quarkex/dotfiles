@@ -52,10 +52,7 @@ style_bg_LightMagenta="\e[105m";  style_clear_bg_LightMagenta="\e[49m"
 
     # End of styles definition
 
-    in="style_$name"
-    out="style_clear_$name"
-
     echo $in
     echo $out
-    echo -e "${!in}${text}${!out}"
+    echo -n -e "${!in}${text}${!out}"
 )}
