@@ -1,0 +1,13 @@
+include ~/.dotfiles/ssh/hosts/*.cfg
+
+Host *+*
+  ProxyCommand ssh -W $(echo %h | sed 's/^.*+//;s/^\([^:]*$\)/\1:22/') $(echo %h | sed 's/+[^+]*$//;s/\([^+%%]*\)%%\([^+]*\)$/\2 -l \1/;s/:\([^:+]*\)$/ -p \1/')
+
+  ########################
+ # Configuración global #
+########################
+Host *
+IdentityFile ~/.ssh/default_key
+ForwardAgent yes
+AddKeysToAgent yes
+AddressFamily inet
