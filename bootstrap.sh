@@ -42,12 +42,13 @@ fi
 sudo cp $HOME/.dotfiles/tmux.conf /etc/tmux.conf
 
 for file in \
-    vim \
-    vimrc \
-    lynxrc \
-    gitconfig \
     Xdefaults \
     Xresources \
+    gitconfig \
+    lynxrc \
+    tmux.conf \
+    vim \
+    vimrc \
 ; do
     if [ ! -e $HOME/".$file" ]; then
         ln -s $HOME/.dotfiles/"$file" $HOME/".$file"
