@@ -46,6 +46,7 @@ for file in \
     Xresources \
     gitconfig \
     lynxrc \
+    slack-term \
     tmux.conf \
     vim \
     vimrc \
