@@ -14,11 +14,12 @@ Plugin 'gmarik/Vundle.vim'
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
 Plugin 'tpope/vim-fugitive'
-"Plugin 'Valloric/YouCompleteMe'
+Plugin 'Valloric/YouCompleteMe'
 Plugin 'ajh17/VimCompletesMe'
 Plugin 'kovisoft/slimv'
 Plugin 'chrisbra/csv.vim'
 Plugin 'elixir-editors/vim-elixir'
+Plugin 'mhinz/vim-mix-format'
 Plugin 'pangloss/vim-javascript'
 Plugin 'mxw/vim-jsx'
 Plugin 'airblade/vim-gitgutter'
@@ -257,3 +258,6 @@ endif
 
 " Easy align interactive
 vnoremap <silent> <Enter> :EasyAlign<cr>
+
+" Reformat elixir files on save
+let g:mix_format_on_save = 1
