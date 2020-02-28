@@ -307,6 +307,7 @@ if (exists('+colorcolumn'))
     highlight ColorColumn ctermbg=9
 endif
 
+<<<<<<< HEAD
 "" Easy align interactive
 "vnoremap <silent> <Enter> :EasyAlign<cr>
 
@@ -342,3 +343,10 @@ let g:tagbar_type_elixir = {
 " Vim-Alchemist Mappings
 autocmd FileType elixir nnoremap <buffer> <leader>h :call alchemist#exdoc()<CR>
 autocmd FileType elixir nnoremap <buffer> <leader>d :call alchemist#exdef()<CR>
+=======
+" Easy align interactive
+vnoremap <silent> <Enter> :EasyAlign<cr>
+
+" Reformat elixir files on save
+let g:mix_format_on_save = 1
+>>>>>>> 26cdf90512b192743accab1500d21ef4c6e2462d
