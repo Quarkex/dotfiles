@@ -1,6 +1,11 @@
 # Dropbox/.bashrc: To be included by ~/.bashrc
 
 # aliases
+if [ -d ~/.bash_aliases.d ]; then
+  for file in ~/.bash_aliases.d/*.sh; do
+    . "$file"
+  done
+fi
 if [ -f ~/.dotfiles/bash_aliases ]; then
     . ~/.dotfiles/bash_aliases
 fi
