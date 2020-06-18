@@ -78,7 +78,7 @@ Plugin 'vim-erlang/vim-erlang-compiler'
 
 " Elixir Support
 Plugin 'elixir-lang/vim-elixir'
-Plugin 'avdgaag/vim-phoenix'
+#Plugin 'avdgaag/vim-phoenix'
 Plugin 'mmorearty/elixir-ctags'
 Plugin 'mattreduce/vim-mix'
 Plugin 'BjRo/vim-extest'
@@ -124,6 +124,7 @@ set background=dark               " Assume a dark background
 set virtualedit=all               " allow for cursor beyond last character
 set cursorline                    " highlight current line
 set nu                            " Line numbers on
+set rnu                           " Relative line numbers
 set showmatch                     " show matching brackets/parenthesis
 set incsearch                     " find as you type search
 set hlsearch                      " highlight search terms
