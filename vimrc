@@ -13,27 +13,6 @@ Plugin 'gmarik/Vundle.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
-Plugin 'tpope/vim-fugitive'
-"Plugin 'Valloric/YouCompleteMe'
-Plugin 'ajh17/VimCompletesMe'
-Plugin 'kovisoft/slimv'
-Plugin 'chrisbra/csv.vim'
-Plugin 'elixir-editors/vim-elixir'
-Plugin 'pangloss/vim-javascript'
-Plugin 'mxw/vim-jsx'
-Plugin 'airblade/vim-gitgutter'
-Plugin 'junegunn/vim-easy-align'
-Plugin 'terryma/vim-multiple-cursors'
-Plugin 'tpope/vim-surround'
-Plugin 'tpope/vim-repeat'
-Plugin 'tpope/vim-endwise'
-Plugin 'bronson/vim-trailing-whitespace'
-Plugin 'scrooloose/nerdtree'
-Plugin 'Xuyuanp/nerdtree-git-plugin'
-Plugin 'w0rp/ale'
-Plugin 'davidhalter/jedi'
-Plugin 'nsf/gocode', {'rtp': 'vim/'}
-Plugin 'neoclide/coc.nvim', {'pinned': 1}
 " plugin from http://vim-scripts.org/vim/scripts.html
 "Plugin 'L9'
 " Git plugin not hosted on GitHub
@@ -45,6 +24,77 @@ Plugin 'neoclide/coc.nvim', {'pinned': 1}
 "Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 " Avoid a name conflict with L9
 "Plugin 'user/L9', {'name': 'newL9'}
+"
+
+" Utility
+Plugin 'w0rp/ale'
+"Plugin 'junegunn/vim-easy-align'
+Plugin 'godlygeek/tabular'
+Plugin 'terryma/vim-multiple-cursors'
+Plugin 'tpope/vim-surround'
+Plugin 'tpope/vim-repeat'
+Plugin 'bronson/vim-trailing-whitespace'
+
+" Autocompletion Support
+"Plugin 'Valloric/YouCompleteMe'
+Plugin 'ajh17/VimCompletesMe'
+Plugin 'davidhalter/jedi'
+Plugin 'neoclide/coc.nvim', {'pinned': 1}
+
+" Smart bars Support
+Plugin 'scrooloose/nerdtree'
+Plugin 'majutsushi/tagbar'
+
+" Git Support
+Plugin 'Xuyuanp/nerdtree-git-plugin'
+Plugin 'kablamo/vim-git-log'
+Plugin 'gregsexton/gitv'
+Plugin 'tpope/vim-fugitive'
+Plugin 'airblade/vim-gitgutter'
+"Plugin 'jaxbot/github-issues.vim'
+
+" PHP Support
+Plugin 'phpvim/phpcd.vim'
+Plugin 'tobyS/pdv'
+
+" Go Support
+Plugin 'nsf/gocode', {'rtp': 'vim/'}
+
+" LISP Support
+Plugin 'kovisoft/slimv'
+
+" CSV Support
+Plugin 'chrisbra/csv.vim'
+
+" JavaScript Support
+Plugin 'pangloss/vim-javascript'
+Plugin 'mxw/vim-jsx'
+
+" Erlang Support
+Plugin 'vim-erlang/vim-erlang-tags'
+Plugin 'vim-erlang/vim-erlang-runtime'
+Plugin 'vim-erlang/vim-erlang-omnicomplete'
+Plugin 'vim-erlang/vim-erlang-compiler'
+
+" Elixir Support
+Plugin 'elixir-lang/vim-elixir'
+" Plugin 'avdgaag/vim-phoenix'
+Plugin 'mmorearty/elixir-ctags'
+Plugin 'mattreduce/vim-mix'
+Plugin 'BjRo/vim-extest'
+Plugin 'frost/vim-eh-docs'
+Plugin 'slashmili/alchemist.vim'
+Plugin 'tpope/vim-endwise'
+Plugin 'jadercorrea/elixir_generator.vim'
+
+" Markdown / Writting
+Plugin 'reedes/vim-pencil'
+Plugin 'tpope/vim-markdown'
+Plugin 'jtratner/vim-flavored-markdown'
+Plugin 'LanguageTool'
+
+" Theme / Interface
+Plugin 'vim-airline/vim-airline'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -74,6 +124,7 @@ set background=dark               " Assume a dark background
 set virtualedit=all               " allow for cursor beyond last character
 set cursorline                    " highlight current line
 set nu                            " Line numbers on
+set rnu                           " Relative line numbers
 set showmatch                     " show matching brackets/parenthesis
 set incsearch                     " find as you type search
 set hlsearch                      " highlight search terms
@@ -117,7 +168,7 @@ autocmd BufNewFile,BufRead *.tex setl omnifunc=syntaxcomplete#Complete
 autocmd BufNewFile,BufRead *.tex setl spell
 autocmd BufNewFile,BufRead *.tex setl spelllang=es_es
 autocmd BufNewFile,BufRead *.tex setl filetype=plaintex
-autocmd BufNewFile,BufRead *.tex :map <F9> :w\|!pdflatex "%:p" %% && firefox "%:p:r".pdf<CR>
+autocmd BufNewFile,BufRead *.tex :map <F6> :w\|!pdflatex "%:p" %% && firefox "%:p:r".pdf<CR>
 
 filetype plugin on
 """ No longer necesary with YouCompleteMe plugin.
@@ -178,7 +229,9 @@ inoremap <A-k> <Esc>:m .-2<CR>==gi
 vnoremap <A-j> :m '>+1<CR>gv=gv
 vnoremap <A-k> :m '<-2<CR>gv=gv
 
-map <C-o> :NERDTreeToggle<CR>
+"map <C-o> :NERDTreeToggle<CR>
+map  <F9> :NERDTreeToggle<CR>
+map <F10> :TagbarToggle<CR>
 
 let mapleader="º"
 
@@ -244,7 +297,7 @@ endfunction
 " Call everytime we open a Markdown file
 autocmd BufRead,BufNewFile,BufEnter *.html,*.md,*.markdown call Liquid()
 
-map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+"map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
 " Call everytime we open a golang file
 autocmd BufRead,BufNewFile,BufEnter *.go,*.golang map <F6> :w\|! go run main.go<CR>
@@ -255,5 +308,38 @@ if (exists('+colorcolumn'))
     highlight ColorColumn ctermbg=9
 endif
 
-" Easy align interactive
-vnoremap <silent> <Enter> :EasyAlign<cr>
+"" Easy align interactive
+"vnoremap <silent> <Enter> :EasyAlign<cr>
+
+" Vim-Airline Configuration
+let g:airline#extensions#tabline#enabled = 1
+"let g:airline_powerline_fonts            = 1
+let g:hybrid_custom_term_colors          = 1
+"let g:hybrid_reduced_contrast            = 1
+set laststatus=0 " hide Statusbar, we have Airline
+set noshowmode   " to get rid of thing like --INSERT--
+set noshowcmd    " to get rid of display of last command
+set shortmess+=F " to get rid of the file name displayed in the command line bar
+
+" Elixir Tagbar Configuration
+let g:tagbar_type_elixir = {
+    \ 'ctagstype' : 'elixir',
+    \ 'kinds' : [
+        \ 'f:functions',
+        \ 'functions:functions',
+        \ 'c:callbacks',
+        \ 'd:delegates',
+        \ 'e:exceptions',
+        \ 'i:implementations',
+        \ 'a:macros',
+        \ 'o:operators',
+        \ 'm:modules',
+        \ 'p:protocols',
+        \ 'r:records',
+        \ 't:tests'
+    \ ]
+    \ }
+
+" Vim-Alchemist Mappings
+autocmd FileType elixir nnoremap <buffer> <leader>h :call alchemist#exdoc()<CR>
+autocmd FileType elixir nnoremap <buffer> <leader>d :call alchemist#exdef()<CR>
