@@ -49,12 +49,20 @@ for file in \
     slack-term \
     tmux.conf \
     vim \
-    vimrc \
 ; do
     if [ ! -e $HOME/".$file" ]; then
         ln -s $HOME/.dotfiles/"$file" $HOME/".$file"
     fi
 done
+
+# Hook vim config file
+if [ -L ~/.vimrc ]; then rm ~/.vimrc; fi
+if [ ! -f ~/.vimrc ]; then touch ~/.vimrc; fi
+grep "source ~/.dotfiles/vimrc" ~/.vimrc &>/dev/null
+if [ ! $? -eq 0 ]; then
+    echo -e "source ~/.dotfiles/vimrc\n$(cat ~/.vimrc)" \
+        >~/.vimrc
+fi
 
 # Hook ssh config file
 if [ ! -d ~/.ssh ];        then mkdir ~/.ssh;        fi
