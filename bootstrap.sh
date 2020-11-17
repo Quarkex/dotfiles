@@ -30,9 +30,25 @@ sudo apt install \
     htop \
     lynx \
     rename \
-    tmux \
     wget \
+    tar \
+    libevent-dev \
+    libncurses-dev \
 -y
+
+if [[ "$(which tmux)" == "" ]]; then
+  tmux_version="3.1b"
+  wget -O /tmp/tmux_src.tar.gz https://github.com/tmux/tmux/releases/download/${tmux_version}/tmux-${tmux_version}.tar.gz \
+    && mkdir /tmp/tmux_src/ \
+    && tar -C /tmp/tmux_src/ -xf /tmp/tmux_src.tar.gz \
+    && rm -r /tmp/tmux_src.tar.gz \
+    && cd /tmp/tmux_src/tmux-${tmux_version}/ \
+    && /tmp/tmux_src/tmux-${tmux_version}/configure \
+    && make \
+    && sudo make install \
+    && cd - \
+    && rm -rf /tmp/tmux_src
+fi
 
 if [ ! -d $HOME/.dotfiles ]; then
     git clone "git@git.atanor.dev:quarkex/dotfiles.git" \
