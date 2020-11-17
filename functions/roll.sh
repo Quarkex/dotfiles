@@ -2,7 +2,7 @@ roll() {
   if [[ "$1" == "" ]]; then
     roll 1d6
   else
-    for item in $@; do
+    for item in "$@"; do
       case $item in
         coin)
           shuf -n 1 -e head tails
