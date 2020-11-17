@@ -8,9 +8,12 @@ roll() {
           shuf -n 1 -e head tails
           ;;
         *)
-          if [[ "${item,,}" =~ [0-9]d[0-9] ]]; then
-            read amount dice <<<$(echo "${item,,}" | tr "d" " " )
-            if [[ "$amount" -gt 1 ]]; then
+          if [[ "${item,,}" =~ [0-9]d[0-9+\-] ]]; then
+            symbol=""
+            modifier=""
+            read amount dice symbol modifier<<<$(echo "${item,,}" | tr "d" " " | sed -e 's/-/ - /g' -e 's/+/ + /g')
+
+            if [[ "$amount" -gt 1 ]] || [[ ! "$modifier" == "" ]]; then
               show_total=true
             else
               show_total=false
@@ -19,7 +22,7 @@ roll() {
             total=0
             while [ $amount -gt 0 ]; do
               result="$(shuf -n 1 -i 1-$dice)"
-              let total=$(( $total + $result ))
+              let total=$(( $total + $result $symbol $modifier ))
 
               info=""
               case $result in
@@ -43,7 +46,11 @@ roll() {
               let amount=$(( $amount - 1 ))
             done
             if [ $show_total == true ]; then
-              echo -e "\tTotal: $total"
+              if [[ "$modifier" == "" ]]; then
+                echo -e "\tTotal: $total"
+              else
+                echo -e "\tTotal $symbol $modifier: $total"
+              fi
             fi
             echo
           else
