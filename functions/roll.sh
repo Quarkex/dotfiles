@@ -22,7 +22,7 @@ roll() {
             total=0
             while [ $amount -gt 0 ]; do
               result="$(shuf -n 1 -i 1-$dice)"
-              let total=$(( $total + $result $symbol $modifier ))
+              let total=$(( $total + $result ))
 
               info=""
               case $result in
@@ -49,7 +49,7 @@ roll() {
               if [[ "$modifier" == "" ]]; then
                 echo -e "\tTotal: $total"
               else
-                echo -e "\tTotal $symbol $modifier: $total"
+                echo -e "\tTotal $symbol $modifier: $(( $total $symbol $modifier ))"
               fi
             fi
             echo
