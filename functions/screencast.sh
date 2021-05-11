@@ -5,8 +5,8 @@ function screencast {(
     -loglevel quiet -stats \
     -video_size `xdpyinfo | awk '/dimensions/ {print $2}'` \
     -framerate 24 \
-    -f x11grab -i :0.0 \
+    -f x11grab -i ${DISPLAY}.0 \
     -f alsa -ac 2 -i pulse \
-    ${1:-~/${timestamp}_screencast}."${2:-mp4}"
+    -f mp4 ${1:-~/${timestamp}_screencast}."${2:-mp4}"
   echo "Screencast saved to: ${1:-~/${timestamp}_screencast}.${2:-mp4}"
 )}
