@@ -1,3 +1,6 @@
 [submodule "vim/bundle/Vundle.vim"]
 	path = vim/bundle/Vundle.vim
 	url = https://github.com/VundleVim/Vundle.vim.git
+[submodule "vimrc.d"]
+	path = vimrc.d
+	url = git@git.atanor.dev:quarkex/vimrc.git

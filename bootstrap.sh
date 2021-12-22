@@ -64,6 +64,7 @@ for file in \
     lynxrc \
     slack-term \
     tmux.conf \
+    vimrc.d \
     vim \
 ; do
     if [ ! -e $HOME/".$file" ]; then
@@ -72,11 +73,11 @@ for file in \
 done
 
 # Hook vim config file
-if [ -L ~/.vimrc ]; then rm ~/.vimrc; fi
+if [ -L ~/.vimrc.d ]; then rm ~/.vimrc.d; fi
 if [ ! -f ~/.vimrc ]; then touch ~/.vimrc; fi
-grep "source ~/.dotfiles/vimrc" ~/.vimrc &>/dev/null
+grep "source ~/.vimrc.d/index.cfg" ~/.vimrc &>/dev/null
 if [ ! $? -eq 0 ]; then
-    echo -e "source ~/.dotfiles/vimrc\n$(cat ~/.vimrc)" \
+    echo -e "source ~/.vimrc.d/index.cfg\n$(cat ~/.vimrc)" \
         >~/.vimrc
 fi
 
