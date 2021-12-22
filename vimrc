@@ -8,6 +8,7 @@ filetype off     " required
 "                  Put your non-Plugin stuff after this line
 
 set history=1000 " Store a ton of history (default is 20)
+set exrc " Enable directory-specific .vimrc files
 source ~/.dotfiles/vim/rc/encodings.cfg
 source ~/.dotfiles/vim/rc/gui.cfg
 source ~/.dotfiles/vim/rc/autocomplete.cfg
