@@ -31,5 +31,3 @@ source ~/.dotfiles/vim/rc/language_specific/elixir.cfg
 source ~/.dotfiles/vim/rc/language_specific/JSON.cfg
 source ~/.dotfiles/vim/rc/language_specific/lisp.cfg
 source ~/.dotfiles/vim/rc/language_specific/javascript.cfg
-
-filetype plugin on
