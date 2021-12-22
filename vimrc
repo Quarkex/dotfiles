@@ -33,13 +33,3 @@ source ~/.dotfiles/vim/rc/language_specific/lisp.cfg
 source ~/.dotfiles/vim/rc/language_specific/javascript.cfg
 
 filetype plugin on
-
-"execute pathogen#infect()
-
-"" :call SetDrawIt('vertical','horizontal','crossing','\','/','X','*')
-
-"map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
-"
-
-"" Easy align interactive
-"vnoremap <silent> <Enter> :EasyAlign<cr>
