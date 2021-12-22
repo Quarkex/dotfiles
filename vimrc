@@ -1,28 +1,13 @@
-set nocompatible              " be iMproved, required
-filetype off                  " required
-
-source ~/.dotfiles/vim/rc/plugins.cfg
-
-filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-"
-" Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just
-":PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to
-"auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-"   ///////////////////////////////////////////////
-"  // Put your non-Plugin stuff after this line //
-" ///////////////////////////////////////////////
-
 " You can add a global configuration file in /etc/vim/vimrc.local
-set nocompatible                  " must be first line
-set history=1000                  " Store a ton of history (default is 20)
+set nocompatible " be iMproved, required, must be first line
+filetype off     " required
+
+"#----------------------------------------------------------------------------#
+                    source ~/.dotfiles/vim/rc/plugins.cfg
+"#----------------------------------------------------------------------------#
+"                  Put your non-Plugin stuff after this line
+
+set history=1000 " Store a ton of history (default is 20)
 source ~/.dotfiles/vim/rc/encodings.cfg
 source ~/.dotfiles/vim/rc/gui.cfg
 source ~/.dotfiles/vim/rc/autocomplete.cfg
